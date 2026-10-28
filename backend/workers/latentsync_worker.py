@@ -63,7 +63,8 @@ def parse_args():
     parser.add_argument("--deepcache", action="store_true")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--seed", type=int, default=1247)
-    parser.add_argument("--crf", type=int, default=16)
+    # x264 quality of the full-video output, capped at 8 (near-lossless): the picture is encoded again later
+    parser.add_argument("--crf", type=int, default=8)
     parser.add_argument("--batch", type=int, default=BATCH)
     parser.add_argument("--dtype", default="auto", choices=["auto", "fp16", "bf16", "fp32"])
     parser.add_argument(
@@ -227,7 +228,7 @@ class SpanAudio:
                 raise ValueError("short feature run")
             return chunks, int(round(t0 * FEATURE_FPS))
         except Exception as exc:  # noqa: BLE001
-            # no speech decoded in the slice: the whole-track features still work
+            # the slice gave too few feature chunks (empty or cut short): the whole-track features still work
             print(f"span {first}-{end}: whole-track audio features ({exc})", flush=True)
             return self.whole_chunks(), 0
 
