@@ -12,6 +12,7 @@ load_dotenv(ROOT / ".env")
 
 
 def _int(name: str, default: int, low: int | None = None, high: int | None = None) -> int:
+    """Integer environment variable, `default` when unset or invalid, clamped to [low, high]."""
     try:
         value = int(os.getenv(name, str(default)))
     except ValueError:
@@ -24,6 +25,7 @@ def _int(name: str, default: int, low: int | None = None, high: int | None = Non
 
 
 def _bool(name: str, default: bool) -> bool:
+    """Boolean environment variable (1/true/yes/on); `default` when unset or blank."""
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
         return default
@@ -34,6 +36,7 @@ _CPUS = os.cpu_count() or 4
 
 
 def _gpu_available() -> bool:
+    """True when nvidia-smi lists a GPU."""
     import shutil
     import subprocess
 
@@ -50,14 +53,16 @@ DEVICE = ("cuda" if _gpu_available() else "cpu") if _DEVICE == "auto" else _DEVI
 
 
 def _venv_python(name: str) -> str:
+    """Path of the python in a project venv, or "" when that venv is missing."""
     path = ROOT / name / "bin" / "python"
     return str(path) if path.exists() else ""
 
 
 @dataclass(frozen=True)
 class Settings:
-    # Server
     """Immutable environment-derived settings for the studio and model workers."""
+
+    # Server
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = _int("PORT", 8001, 1, 65535)
     studio_password: str = os.getenv("STUDIO_PASSWORD", "").strip()
@@ -208,8 +213,6 @@ class Settings:
     roformer_model: str = os.getenv("ROFORMER_MODEL", "vocals_mel_band_roformer.ckpt").strip()
     separate_python: Path = ROOT / os.getenv("SEPARATE_PYTHON", ".venv-separate/bin/python")
     separator_models: Path = ROOT / os.getenv("SEPARATOR_MODELS", "models/separator")
-    # exact: every line is stretched to fill its original slot precisely (lips move for the whole span);
-    # natural: pace stays within 0.8x-1.35x and a line may end early or lose its tail instead.
     # Hugging Face repo (or local dir) of the audio gender classifier; blank disables it (pitch + reviewer only)
     gender_model: str = os.getenv(
         "GENDER_MODEL", "audeering/wav2vec2-large-robust-6-ft-age-gender"
@@ -217,6 +220,8 @@ class Settings:
     # exact mode: pace band that still sounds like the same speaker; beyond it a line borrows the following silence or ends early
     pace_min: float = float(os.getenv("PACE_MIN", "0.85"))
     pace_max: float = float(os.getenv("PACE_MAX", "1.15"))
+    # exact: every line is stretched to fill its original slot precisely (lips move for the whole span);
+    # natural: pace stays within 0.8x-1.35x and a line may end early or lose its tail instead.
     timing_mode: str = (
         "natural" if os.getenv("TIMING_MODE", "exact").strip().lower() == "natural" else "exact"
     )

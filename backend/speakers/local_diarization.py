@@ -27,6 +27,7 @@ def _models_dir():
 
 @lru_cache(maxsize=4)
 def _pipeline(num_clusters: int):
+    """sherpa-onnx diarization pipeline for a cluster count (-1: decided by threshold)."""
     import sherpa_onnx
 
     folder = _models_dir()
@@ -70,6 +71,7 @@ def _embedder():
 
 
 def load_samples(audio: Path) -> np.ndarray:
+    """Float samples in [-1, 1) of a 16 kHz mono 16-bit WAV; raises ValueError for other formats."""
     with wave.open(str(audio), 'rb') as stream:
         if (stream.getframerate(), stream.getnchannels(), stream.getsampwidth()) != (RATE, 1, 2):
             raise ValueError('Diarization needs a 16 kHz mono PCM WAV')
@@ -129,6 +131,7 @@ def snap_boundaries(
 
 
 def _embedding(samples: np.ndarray, start: float, end: float):
+    """CAM++ voice embedding of samples[start:end] (times in seconds)."""
     extractor = _embedder()
     stream = extractor.create_stream()
     stream.accept_waveform(RATE, samples[int(start * RATE) : int(end * RATE)])
@@ -189,6 +192,7 @@ def consolidate_speakers(
 
 
 def _relabel(turns: list[Segment]) -> list[Segment]:
+    """Rename speakers SPEAKER_00, SPEAKER_01, ... in order of first appearance; sorts by start."""
     labels = {}
     result = []
     for turn in sorted(turns, key=lambda t: t.start):
@@ -198,10 +202,18 @@ def _relabel(turns: list[Segment]) -> list[Segment]:
 
 
 def diarize(audio: Path, progress=None, num_speakers: int | None = None) -> list[Segment]:
+    """Diarize a 16 kHz mono WAV on the CPU with sherpa-onnx, then refine the turns.
+
+    `num_speakers` fixes the cluster count when given; `progress(done, total)` receives
+    sherpa-onnx's chunk progress. Same-voice speakers are merged and boundaries snapped to speech
+    (see the module docstring); turns are labelled SPEAKER_00, SPEAKER_01, ... in order of
+    appearance.
+    """
     samples = load_samples(audio)
     clusters = int(num_speakers) if num_speakers and num_speakers > 0 else -1
     pipeline = _pipeline(clusters)
     if progress:
+        # sherpa-onnx's progress callback must return an int (its value is ignored)
         result = pipeline.process(
             samples, callback=lambda done, total: (progress(done, total), 0)[1]
         )

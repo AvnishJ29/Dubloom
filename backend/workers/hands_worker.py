@@ -14,6 +14,7 @@ import numpy as np
 
 
 def main():
+    """Detect hands in every --stride-th frame (only --frames, if given) and write OUT.npz."""
     parser = argparse.ArgumentParser()
     parser.add_argument("video")
     parser.add_argument("output")

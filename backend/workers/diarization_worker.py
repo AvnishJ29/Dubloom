@@ -8,6 +8,11 @@ from backend.speakers.diarization import speaker_turns
 
 
 def main(audio: Path, output: Path, num_speakers: int | None = None):
+    """Diarize `audio` in-process with speaker_turns and write {mode, segments} JSON to `output`.
+
+    `num_speakers` is an optional hint; progress goes to stdout as PROGRESS lines.
+    """
+
     def progress(done, total):
         print(f'PROGRESS {done} {total}', flush=True)
 

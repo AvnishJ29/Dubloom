@@ -48,6 +48,7 @@ Respond with JSON only: {{"lines": [{{"id": 0, "text": "..."}}]}}"""
 
 
 def _parse(content: str, expected: set[int]) -> dict[int, str]:
+    """{id: text} for the expected ids found in a JSON reply; other items are ignored."""
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.S)
     data = json.loads(text[text.find("{") : text.rfind("}") + 1])
     result = {}
@@ -62,6 +63,7 @@ def _parse(content: str, expected: set[int]) -> dict[int, str]:
 
 
 def _ask(system: str, user: str, expected: set[int], usage) -> dict[int, str]:
+    """{id: text} from the first model (main, then fallbacks) that answers; {} when all fail."""
     models = [settings.openrouter_model] + [
         m for m in settings.openrouter_fallback_models if m != settings.openrouter_model
     ]

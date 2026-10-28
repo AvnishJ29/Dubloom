@@ -1,3 +1,5 @@
+"""Shared data: supported languages, the voice catalogue, job statuses and the Segment line."""
+
 from dataclasses import dataclass, asdict, field
 from typing import Optional
 
@@ -52,7 +54,7 @@ class Segment:
     audio_path: Optional[str] = None
     voiced_text: str = ""  # the translation the current TTS clip was generated from
     voiced_style: str = ""  # delivery style the clip was generated with
-    tts_engine: str = ""  # engine that produced the clip (bodhan, clone, gemini, edge, mms)
+    tts_engine: str = ""  # engine that produced the clip (bodhan, clone, gemini)
     tts_speed: float = 1.0  # native speed requested from the voice engine
     dub_start: Optional[float] = None  # where the line was finally placed on the timeline
     dub_end: Optional[float] = (

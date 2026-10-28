@@ -12,6 +12,8 @@ from backend.config import settings
 
 
 class GpuPool:
+    """Render slots, one GPU id each; a GPU appears once per slot that uses it."""
+
     def __init__(self, gpus: list[str]):
         self.gpus = list(gpus)
         self.free = list(gpus)
@@ -20,6 +22,11 @@ class GpuPool:
         self.local = threading.local()
 
     def acquire(self, blocking: bool = True, timeout: float | None = None) -> bool:
+        """Take a render slot and bind its GPU to the calling thread (see env()).
+
+        Returns False when no slot is free and `blocking` is off or `timeout` seconds pass. Every
+        successful call must be paired with release() on the same thread.
+        """
         ok = (
             self.semaphore.acquire(blocking, -1 if timeout is None else timeout)
             if blocking
@@ -31,6 +38,7 @@ class GpuPool:
         return ok
 
     def release(self):
+        """Return the calling thread's GPU to the pool and free its slot."""
         gpu = getattr(self.local, 'gpu', None)
         if gpu is not None:
             with self.lock:

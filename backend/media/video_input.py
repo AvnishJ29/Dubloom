@@ -104,6 +104,7 @@ def probe(path: Path) -> dict:
 
 
 def duration(path: Path) -> float:
+    """Container duration of a media file in seconds, from ffprobe."""
     raw = run("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", path)
     return float(json.loads(raw)["format"]["duration"])
 
@@ -164,6 +165,7 @@ def _inspect_url(url: str) -> tuple[str, int, str]:
 
 
 def _is_direct_media(url: str, content_type: str) -> bool:
+    """True when the URL serves a media file itself rather than a page or a playlist."""
     if content_type.startswith(("video/", "audio/")):
         return True
     ext = Path(unquote(urlparse(url).path)).suffix.lower()
@@ -177,6 +179,11 @@ def _is_direct_media(url: str, content_type: str) -> bool:
 
 
 def _download_direct(url: str, destination: Path, max_bytes: int, progress=None) -> Path:
+    """Stream a media URL to `destination`, enforcing `max_bytes`.
+
+    Reports the downloaded share to `progress` when the size is known. Raises SourceError on an
+    HTTP error, an oversized file or an empty body.
+    """
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Dubloom/1.0"}
     received = 0
     with httpx.Client(follow_redirects=True, timeout=httpx.Timeout(30, read=120)) as client:
@@ -496,6 +503,7 @@ def write_preview(master: Path, output: Path, max_height: int = PREVIEW_HEIGHT) 
 
 
 def make_poster(video: Path, output: Path, at_seconds: float = 1.0):
+    """Write a 480 px wide still of `video` at `at_seconds`, or of its first frame if that fails."""
     try:
         run(
             "ffmpeg",

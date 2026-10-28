@@ -49,6 +49,7 @@ Respond with JSON only:
 
 
 def _clip(audio: Path, start: float, end: float, target: Path) -> Path:
+    """Cut [start, end] of `audio`, with 0.1 s margins, to a 16 kHz mono file at `target`."""
     subprocess.run(
         [
             "ffmpeg",
@@ -75,6 +76,7 @@ def _clip(audio: Path, start: float, end: float, target: Path) -> Path:
 def _transcripts(
     turns: list[Segment], audio: Path, work: Path, language: str | None, usage
 ) -> list[str]:
+    """Transcript of every turn, transcribed in parallel; "" where transcription failed."""
     work.mkdir(exist_ok=True)
 
     def one(index: int) -> str:
@@ -95,6 +97,7 @@ def _transcripts(
 
 
 def _parse(content: str) -> dict:
+    """The JSON object in a model reply, ignoring code fences and surrounding text."""
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.S)
     return json.loads(text[text.find("{") : text.rfind("}") + 1])
 
@@ -128,6 +131,11 @@ def _pitches(turns: list[Segment], audio: Path) -> list[float | None]:
 
 
 def _one_review(prompt: str, data: str, usage) -> dict | None:
+    """One reviewer pass over the dialogue audio (`data`: base64 MP3).
+
+    Returns {"voices": {voice id: voice}, "turns": {turn id: verdict}}, or None when the request
+    or its JSON fails.
+    """
     try:
         content = openrouter.chat(
             settings.openrouter_asr_chat_model,
@@ -161,6 +169,7 @@ def _one_review(prompt: str, data: str, usage) -> dict | None:
 
 
 def _majority(values: list[str], default: str) -> str:
+    """The most common non-empty value, or `default` when there is none."""
     values = [v for v in values if v]
     return max(set(values), key=values.count) if values else default
 

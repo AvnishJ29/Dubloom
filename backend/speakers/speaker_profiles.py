@@ -65,6 +65,11 @@ def median_pitch(samples: np.ndarray) -> tuple[float | None, float]:
 
 
 def classify(f0: float | None) -> tuple[str, float]:
+    """(gender, confidence) from a median pitch in Hz; None gives ("unknown", 0.0).
+
+    Below 150 Hz is male and above 175 Hz female, more confidently the further out; the
+    overlapping band in between is split at 163 Hz with a low confidence of 0.35.
+    """
     if f0 is None:
         return "unknown", 0.0
     if f0 < 150:

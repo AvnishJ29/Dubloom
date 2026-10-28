@@ -138,6 +138,7 @@ def join_wavs(blobs: list[bytes], output: Path, gap_seconds: float = CHUNK_GAP_S
 
 
 def clip_seconds(path: Path) -> float:
+    """Duration of a WAV file in seconds, or 0.0 when it is missing or unreadable."""
     try:
         with wave.open(str(path), "rb") as reader:
             return reader.getnframes() / max(1, reader.getframerate())

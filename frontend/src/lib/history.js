@@ -1,9 +1,10 @@
+// version reasons of studio re-renders: they update the entry before them
+const STUDIO = new Set(['Re-rendered', 'Improved lip sync and timing'])
+
 /** A dub's history for the sidebar, newest first: one entry per change the owner made (script edits, voices, takes,
  *  merges), plus the first dub. A studio re-render changes nothing the owner made, so it does not get an entry of its
  *  own: it only replaces the render of the change before it, and that entry plays the newest render. Every archived
  *  render stays in versions/<n>/; this only decides what is listed. */
-const STUDIO = new Set(['Re-rendered', 'Improved lip sync and timing'])
-
 export function generations(job) {
   const versions = job?.versions || []
   const renders = versions.map((version, i) => ({

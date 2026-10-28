@@ -18,12 +18,14 @@ class Usage:
         self.data: dict[str, float] = dict(initial or {})
 
     def add(self, key: str, amount: float):
+        """Add `amount` to counter `key`; zero amounts are ignored."""
         if not amount:
             return
         with self.lock:
             self.data[key] = round(self.data.get(key, 0) + float(amount), 6)
 
     def bodhan_cost_inr(self) -> float:
+        """Rupee cost of the recorded Bodhan ASR seconds, translation tokens and TTS characters."""
         with self.lock:
             return round(
                 self.data.get("bodhan_asr_seconds", 0) * BODHAN_ASR_INR_PER_SECOND
@@ -34,6 +36,7 @@ class Usage:
             )
 
     def as_dict(self) -> dict:
+        """Snapshot of all counters plus the derived `bodhan_cost_inr`."""
         with self.lock:
             data = dict(self.data)
         data["bodhan_cost_inr"] = self.bodhan_cost_inr()
@@ -41,6 +44,7 @@ class Usage:
 
 
 def estimate_bodhan_inr(audio_seconds: float, characters: int, output_tokens: int = 0) -> float:
+    """Up-front Bodhan cost in rupees for this much audio, TTS text and translation output."""
     return round(
         audio_seconds * BODHAN_ASR_INR_PER_SECOND
         + characters * BODHAN_TTS_INR_PER_CHARACTER

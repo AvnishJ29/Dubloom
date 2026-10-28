@@ -153,6 +153,11 @@ def refine_turns(turns: list[Segment], audio: Path) -> list[Segment]:
 def speaker_turns(
     audio: Path, progress=None, num_speakers: int | None = None
 ) -> tuple[list[Segment], str]:
+    """Diarize `audio` in-process with the sherpa or speechbrain backend.
+
+    Returns (turns, description of the method). Turns are merged (merge_turns) and long ones cut
+    at pauses (split_points); times are in seconds. Any backend failure is raised as RuntimeError.
+    """
     try:
         if settings.diarization_backend == 'sherpa':
             from backend.speakers.local_diarization import diarize as local_diarize

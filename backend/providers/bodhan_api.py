@@ -27,6 +27,7 @@ _status_lock = threading.Lock()
 
 
 def _service_for(key: str) -> str:
+    """Which service (asr, translation, tts) a Bodhan key belongs to."""
     return {
         settings.bodhan_asr_key: "asr",
         settings.bodhan_translate_key: "translation",
@@ -35,6 +36,7 @@ def _service_for(key: str) -> str:
 
 
 def note_status(key: str, **fields):
+    """Record a provider problem for the service that owns `key`, timestamped, for /api/health."""
     with _status_lock:
         provider_status[_service_for(key)] = {
             **fields,
@@ -43,6 +45,7 @@ def note_status(key: str, **fields):
 
 
 def clear_status(key: str):
+    """Forget the recorded problem for the service that owns `key` once a request succeeds."""
     with _status_lock:
         provider_status.pop(_service_for(key), None)
 
@@ -79,6 +82,11 @@ class KeyPacer:
         self.lock = threading.Lock()
 
     def acquire(self):
+        """Block until a request may be sent on this key.
+
+        Takes a parallel slot first, then waits out any 429 hold and the rolling 60-second request
+        window. Every call must be paired with release().
+        """
         self.parallel.acquire()
         while True:
             with self.lock:
@@ -93,6 +101,7 @@ class KeyPacer:
             time.sleep(max(0.05, wait))
 
     def release(self):
+        """Give back the parallel slot taken by acquire()."""
         self.parallel.release()
 
     def hold(self, seconds: float):
@@ -101,6 +110,7 @@ class KeyPacer:
             self.hold_until = max(self.hold_until, time.monotonic() + seconds)
 
     def learn(self, headers):
+        """Adopt the per-minute limit a response advertises, keeping a 10 % margin."""
         try:
             limit = int(headers.get("x-ratelimit-api_key-limit-requests") or 0)
         except ValueError:
@@ -117,6 +127,7 @@ _pacers_lock = threading.Lock()
 
 
 def pacer_for(key: str) -> KeyPacer:
+    """Return the process-wide pacer for a Bodhan key, creating it on first use."""
     with _pacers_lock:
         if key not in _pacers:
             _pacers[key] = KeyPacer()
@@ -135,6 +146,15 @@ class BodhanAPI:
     def post(
         self, path: str, key: str, allow_404: bool = False, rate_limit_attempts: int = 8, **kwargs
     ) -> httpx.Response:
+        """POST `path` with `key`, pacing requests and retrying rate limits.
+
+        A 429 waits for the provider's retry-after (else 5 s doubling per attempt, capped at 60 s),
+        reports the delay to `on_rate_limit` and retries, up to `rate_limit_attempts` tries in all;
+        multipart uploads are rewound before every attempt. A budget 429 marks the key exhausted
+        for this client's lifetime and raises BodhanBudgetError at once; persistent 429s raise
+        BodhanRateLimitError. Other error statuses raise RuntimeError, except 404 when `allow_404`
+        is set, which is returned. Remaining `kwargs` go to httpx.Client.post.
+        """
         with self.lock:
             if key in self.exhausted:
                 raise BodhanBudgetError("Bodhan budget is exhausted for this model")
@@ -203,6 +223,7 @@ class BodhanAPI:
 
     @staticmethod
     def _detail(response: httpx.Response) -> str:
+        """The provider's error message from a failed response, else its raw text."""
         try:
             payload = response.json()
         except ValueError:
@@ -216,6 +237,7 @@ class BodhanAPI:
 
     @staticmethod
     def _budget_exceeded(response: httpx.Response) -> bool:
+        """True when a 429 means the account budget is spent, not a rate limit."""
         try:
             payload = response.json()
         except ValueError:
@@ -229,4 +251,5 @@ class BodhanAPI:
         return "budget" in response.text.lower()
 
     def close(self):
+        """Close the underlying HTTP client."""
         self.client.close()

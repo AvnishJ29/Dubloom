@@ -29,6 +29,11 @@ _CARD = re.compile(
 
 
 def load_library(path: Path = LIBRARY_PATH) -> dict[str, dict]:
+    """Parse the voice cards of voices.md into {name: card}.
+
+    A card holds gender, language (the ## heading it sits under), pitch in Hz, speaking rate in
+    characters per second, description and "best for" list.
+    """
     text = path.read_text(encoding="utf-8")
     library, language = {}, ""
     blocks = re.split(r"(?=^## |^\*\*\w+\*\* — )", text, flags=re.M)
@@ -62,7 +67,7 @@ LANGUAGE_NAMES = {
     "doi": "Dogri",
     "gu": "Gujarati",
     "hi": "Hindi",
-    "en": "Hindi",
+    "en": "Hindi",  # English lines are voiced by the Hindi cards (same voices in the catalogue)
     "kn": "Kannada",
     "ks": "Kashmiri",
     "kok": "Konkani",

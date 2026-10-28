@@ -27,6 +27,7 @@ FPS = 25
 
 
 def read_int16(path):
+    """int16 samples of a 16 kHz 16-bit WAV, channels averaged; exits on any other format."""
     with wave.open(path, "rb") as stream:
         if stream.getframerate() != 16000 or stream.getsampwidth() != 2:
             raise SystemExit("audio must be 16 kHz 16-bit PCM")
@@ -37,6 +38,11 @@ def read_int16(path):
 
 
 def main():
+    """Score every face track and write OUT.npz.
+
+    `score` holds one Light-ASD score per detection of FACES.npz (TRACKS.npz gives each
+    detection's track); detections in tracks shorter than MIN_TRACK frames stay NaN.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("video")
     parser.add_argument("audio")

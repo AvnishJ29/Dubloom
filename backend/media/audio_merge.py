@@ -25,6 +25,7 @@ SILENCE_TRIM = (
 
 @lru_cache(maxsize=1)
 def rubberband_available() -> bool:
+    """True when this ffmpeg build has the rubberband filter (checked once per process)."""
     try:
         result = subprocess.run(
             ["ffmpeg", "-hide_banner", "-filters"], capture_output=True, text=True, timeout=20
@@ -35,11 +36,13 @@ def rubberband_available() -> bool:
 
 
 def _tempo_filters(speed: float) -> list[str]:
+    """ffmpeg filters that change tempo by `speed` while keeping the pitch; none for ~1.0."""
     if abs(speed - 1.0) < 0.005:
         return []
     if rubberband_available():
         # Pitch-preserving, formant-preserving stretch: cleaner than atempo on speech.
         return [f"rubberband=tempo={speed:.4f}:transients=crisp:formant=preserved:pitchq=quality"]
+    # one atempo takes at least 0.5 (at most 2.0 in older ffmpeg): chain instances to go further
     filters = []
     while speed > 2:
         filters.append("atempo=2")

@@ -21,6 +21,7 @@ OUT_W, OUT_H = 1080, 1920
 
 
 def _probe(path: Path) -> tuple[int, int, float]:
+    """(width, height, duration in seconds) of the first video stream."""
     out = subprocess.run(
         [
             "ffprobe",
@@ -47,6 +48,7 @@ def _probe(path: Path) -> tuple[int, int, float]:
 
 
 def _srt_time(seconds: float) -> str:
+    """SRT timestamp (HH:MM:SS,mmm) for a time in seconds."""
     ms = int(round(max(0.0, seconds) * 1000))
     return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d},{ms % 1000:03d}"
 

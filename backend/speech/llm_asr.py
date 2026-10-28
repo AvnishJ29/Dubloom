@@ -50,6 +50,12 @@ def _prompt(source_language: str | None) -> str:
 def transcribe_clip(
     audio: Path, source_language: str | None = None, state: dict | None = None, usage=None
 ) -> str:
+    """Transcribe one audio clip through OpenRouter; "" when there is no speech.
+
+    The speech-to-text model is tried first. Once it fails, `state["stt_failed"]` is set so later
+    clips sharing `state` go straight to the chat model that hears audio. Raises RuntimeError when
+    both routes fail; costs are added to `usage`.
+    """
     state = state if state is not None else {}
     data = base64.b64encode(audio.read_bytes()).decode()
     fmt = audio.suffix.lstrip(".").lower() or "wav"

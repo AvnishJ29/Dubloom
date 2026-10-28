@@ -20,6 +20,7 @@ import torch
 
 
 def lower_face(bbox, width, height):
+    """Lower-face box (x1, y1, x2, y2) of a face `bbox`: 10 % wider a side, clipped to the frame."""
     x1, y1, x2, y2 = bbox
     w, h = x2 - x1, y2 - y1
     return (
@@ -155,6 +156,7 @@ def restore_file(restorer, source, output, first, bbox, track, args):
 
 
 def main():
+    """Restore one LatentSync output, or every span file listed by --batch with one model load."""
     parser = argparse.ArgumentParser()
     parser.add_argument("lips", nargs="?")
     parser.add_argument("targets", nargs="?")

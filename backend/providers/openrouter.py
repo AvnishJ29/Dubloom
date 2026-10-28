@@ -10,10 +10,13 @@ BASE = "https://openrouter.ai/api/v1"
 
 
 class OpenRouterError(RuntimeError):
+    """An OpenRouter request failed or answered with an error payload."""
+
     pass
 
 
 def configured() -> bool:
+    """True when an OpenRouter API key is set."""
     return bool(settings.openrouter_api_key)
 
 
@@ -23,6 +26,7 @@ def covers_bodhan() -> bool:
 
 
 def headers() -> dict:
+    """Request headers: the API key plus OpenRouter's optional app attribution."""
     return {
         "Authorization": f"Bearer {settings.openrouter_api_key}",
         "Content-Type": "application/json",
@@ -32,6 +36,7 @@ def headers() -> dict:
 
 
 def _raise(response: httpx.Response):
+    """Raise OpenRouterError carrying the error message of a failed response."""
     try:
         detail = response.json().get("error", {})
         message = detail.get("message") if isinstance(detail, dict) else str(detail)
@@ -41,6 +46,11 @@ def _raise(response: httpx.Response):
 
 
 def post_json(path: str, body: dict, timeout: float = 180) -> dict:
+    """POST a JSON body to an OpenRouter endpoint and return the decoded JSON reply.
+
+    `timeout` bounds the read in seconds. Raises OpenRouterError on an HTTP error or an error
+    payload.
+    """
     with httpx.Client(timeout=httpx.Timeout(30, read=timeout)) as client:
         response = client.post(BASE + path, headers=headers(), json=body)
     if response.is_error:
@@ -52,6 +62,7 @@ def post_json(path: str, body: dict, timeout: float = 180) -> dict:
 
 
 def post_audio(path: str, body: dict, timeout: float = 180) -> tuple[bytes, str]:
+    """POST a JSON body and return the raw reply bytes and their content type (audio endpoints)."""
     with httpx.Client(timeout=httpx.Timeout(30, read=timeout)) as client:
         response = client.post(BASE + path, headers=headers(), json=body)
     if response.is_error:
@@ -60,6 +71,11 @@ def post_audio(path: str, body: dict, timeout: float = 180) -> tuple[bytes, str]
 
 
 def chat(model: str, messages: list[dict], usage=None, **options) -> str:
+    """Send a chat completion and return the reply text, stripped.
+
+    Google models default to minimal reasoning effort. The reported cost in USD is added to
+    `usage` (a Usage) when given; extra `options` go into the request body.
+    """
     body = {"model": model, "messages": messages, **options}
     if model.startswith("google/"):
         body.setdefault("reasoning", {"effort": "minimal"})

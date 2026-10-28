@@ -8,7 +8,7 @@
    every tracked face in every frame: is it speaking the audio heard now? During
    each dubbed line, a face track is the speaker when most of its frames in the
    line score as speaking; it is then re-rendered for the whole line (pauses
-   included), except stretches of two seconds or more where it is silent.
+   included), except near-profile frames, which keep their original picture.
    Voice-over, narration, off-screen voices, listeners, masks, statues and
    posters keep their original picture.
    Without ASD scores the fallback is per speaker: the identity whose lip
@@ -51,6 +51,12 @@ MOUTH_LEFT, MOUTH_RIGHT, LIP_TOP, LIP_BOTTOM = 52, 61, 71, 53
 
 @dataclass
 class FaceTargets:
+    """The face to re-render in each video frame, plus a report of how it was chosen.
+
+    `bbox`, `lmk` and `track` are indexed by frame; frames without a target hold NaN / -1 and are
+    left as filmed.
+    """
+
     frame_count: int
     bbox: np.ndarray  # (F, 4) float, NaN where no target
     lmk: np.ndarray  # (F, 106, 2) float, NaN where no target
@@ -59,9 +65,11 @@ class FaceTargets:
 
     @property
     def active(self) -> np.ndarray:
+        """Boolean mask of the frames that have a target face."""
         return self.track >= 0
 
     def save(self, path):
+        """Write the per-frame arrays (not the report) to a compressed .npz at `path`."""
         np.savez_compressed(
             path, frame_count=self.frame_count, bbox=self.bbox, lmk=self.lmk, track=self.track
         )
@@ -76,6 +84,11 @@ def _iou(a, b):
 
 
 def scene_cuts(thumbs: np.ndarray) -> np.ndarray:
+    """Flag the frames that start a new shot.
+
+    `thumbs` holds one small grey thumbnail per video frame; a frame starts a shot when its mean
+    absolute difference from the previous one exceeds CUT_THRESHOLD. Frame 0 always does.
+    """
     cuts = np.zeros(len(thumbs), dtype=bool)
     if len(thumbs) > 1:
         diff = np.abs(thumbs[1:].astype(np.float32) - thumbs[:-1].astype(np.float32)).mean(
@@ -87,6 +100,13 @@ def scene_cuts(thumbs: np.ndarray) -> np.ndarray:
 
 
 def build_tracks(frames: np.ndarray, boxes: np.ndarray, cuts: np.ndarray) -> np.ndarray:
+    """Link face detections into tracks, never across a shot cut.
+
+    `frames` and `boxes` hold one row per detection (video frame index, x1/y1/x2/y2 box); `cuts`
+    is per video frame. Each frame, detections are matched greedily by IoU (>= TRACK_IOU) to
+    tracks last seen at most TRACK_MAX_GAP frames earlier; unmatched detections start new tracks.
+    Returns the track id of every detection.
+    """
     track_of = np.full(len(frames), -1, dtype=np.int32)
     active: dict[int, tuple[int, np.ndarray]] = {}
     next_id = 0
@@ -120,6 +140,12 @@ def build_tracks(frames: np.ndarray, boxes: np.ndarray, cuts: np.ndarray) -> np.
 
 
 def track_identities(track_of: np.ndarray, embeddings: np.ndarray) -> dict[int, int]:
+    """Merge tracks that show the same person.
+
+    Tracks whose mean ArcFace embeddings (`embeddings` is per detection) reach
+    IDENTITY_SIMILARITY cosine similarity are joined transitively. Returns {track id: identity},
+    identities numbered from 0.
+    """
     tracks = sorted(set(int(t) for t in track_of))
     means = {}
     for tid in tracks:
@@ -171,6 +197,10 @@ def loudness_envelope(audio_path, frame_count: int, fps: float = 25.0) -> np.nda
 
 
 def best_lag_correlation(a: np.ndarray, b: np.ndarray, max_lag: int = 3) -> float:
+    """Highest Pearson correlation of `a` and `b` over shifts of up to `max_lag` samples either way.
+
+    Returns -1.0 when no shift leaves more than 10 overlapping, non-constant samples.
+    """
     best = -1.0
     for lag in range(-max_lag, max_lag + 1):
         x = a[max(0, -lag) : len(a) - max(0, lag)]
@@ -239,8 +269,14 @@ def compute_targets(
     track_of: np.ndarray | None = None,
     hands: dict | None = None,
 ) -> FaceTargets:
-    """`envelope`: speech loudness per frame (fallback active-speaker cue).
-    `asd`: Light-ASD score per detection (>= 0 speaking, NaN unscored); `track_of`: track per detection.
+    """Choose the face to re-render in every frame for the dubbed lines.
+
+    `slots` holds (start, end, speaker) per line, in seconds; `faces` is the face_worker output
+    (see load_faces). With `asd` (Light-ASD score per detection: >= 0 leans speaking, NaN
+    unscored) each line is judged on its own; without it each speaker is matched to one identity
+    whose lip opening follows `envelope`, the per-frame speech loudness. `track_of` (track per
+    detection) is built from the boxes when not given; frames where `hands` cover the mouth are
+    dropped.
     """
     frame_count = int(faces["frame_count"])
     frames, boxes = faces["frame"], faces["bbox"]
@@ -347,6 +383,12 @@ def frontalness(kps: np.ndarray) -> np.ndarray:
 
 
 def _targets_from_asd(faces, slots, fps, cuts, track_of, asd, hands=None) -> FaceTargets:
+    """compute_targets from Light-ASD scores: every dubbed line is judged on its own.
+
+    A face track is the speaker of a line when enough of its smoothed scores in the line are
+    confident; its frontal frames are then redrawn. Lines no face confirmed fall back to the
+    speaker's face identity from the rest of the video.
+    """
     frame_count = int(faces["frame_count"])
     frames, boxes, landmarks = faces["frame"], faces["bbox"], faces["lmk"]
     widths = boxes[:, 2] - boxes[:, 0]
@@ -490,5 +532,6 @@ def _fill_short_gaps(bbox, lmk, track, speaker_at, max_gap: int = 3):
 
 
 def load_faces(path) -> dict:
+    """Load a face_worker .npz into a dict of arrays (frame, bbox, lmk, emb, thumbs, ...)."""
     data = np.load(path)
     return {key: data[key] for key in data.files}

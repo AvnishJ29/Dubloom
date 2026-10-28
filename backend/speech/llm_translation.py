@@ -49,10 +49,15 @@ Respond with JSON only: {{"lines": [{{"id": <number>, "text": "<shorter line>"}}
 
 
 def word_budget(seconds: float, language: str) -> int:
+    """Words a slot of `seconds` holds at the language's natural pace, at least 2.
+
+    Slots shorter than 0.6 s count as 0.6 s.
+    """
     return max(2, round(max(0.6, seconds) * WORDS_PER_SECOND.get(language, 2.1)))
 
 
 def _label(speaker: str, profiles: dict) -> str:
+    """Speaker label for the prompt, e.g. "Speaker 2 (female)"."""
     match = re.search(r"(\d+)$", speaker or "")
     name = f"Speaker {int(match.group(1)) + 1}" if match else (speaker or "Speaker")
     gender = (profiles or {}).get(speaker, {}).get("gender")
@@ -60,6 +65,7 @@ def _label(speaker: str, profiles: dict) -> str:
 
 
 def _parse(content: str, expected: set[int]) -> dict[int, str]:
+    """{id: text} from a JSON reply; raises RuntimeError when an expected line is missing."""
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.S)
     start, end = text.find("{"), text.rfind("}")
     data = json.loads(text[start : end + 1])
@@ -79,6 +85,7 @@ def _parse(content: str, expected: set[int]) -> dict[int, str]:
 
 
 def _models() -> list[str]:
+    """The configured OpenRouter model followed by its distinct fallbacks."""
     return [settings.openrouter_model] + [
         m for m in settings.openrouter_fallback_models if m != settings.openrouter_model
     ]
@@ -87,6 +94,10 @@ def _models() -> list[str]:
 def _ask(
     messages: list[dict], expected: set[int], usage=None, temperature: float = 0.2
 ) -> tuple[dict[int, str], str]:
+    """Send `messages` to each model in turn, two tries each, until a reply parses.
+
+    Returns ({id: text}, model used); raises RuntimeError when every model failed.
+    """
     last_error: Exception | None = None
     for model in _models():
         for attempt in range(2):
