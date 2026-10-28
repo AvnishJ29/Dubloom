@@ -32,6 +32,8 @@ def fetch_source(dub: DubRun):
         dub.directory,
         lambda label, fraction: dub.mark('source', label, dub.span('source', fraction)),
     )
+    # The download saved the title and description into the record; the content profile reads them.
+    dub.job = store.get(dub.job_id) or dub.job
     info = probe(video)
     dub.video_duration = info['duration']
     if dub.video_duration > settings.max_video_minutes * 60:

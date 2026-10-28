@@ -72,7 +72,6 @@ def transcribe_script(dub: DubRun):
         speaker_voices=dub.speaker_voices,
         review_warnings=overlapping_turns(segments) + voice_reuse_warnings(dub.speaker_voices),
     )
-    content_early = dub.job.get('script_profile') or {}
     asr_state: dict = {}
     # Transcribe from the dialogue stem when there is one: the words without the music.
     dialogue = dub.directory / 'dialogue16k.wav'
@@ -118,7 +117,7 @@ def transcribe_script(dub: DubRun):
             snippet.unlink(missing_ok=True)
         segment.state = 'heard'
         if dub.streaming and segment.text and not segment.translation:
-            _translate_as_heard(dub, index, segment, content_early)
+            _translate_as_heard(dub, segment)
 
     remaining = [
         segment for segment in segments if not segment.text or degenerate(segment.text)
@@ -150,14 +149,18 @@ def transcribe_script(dub: DubRun):
         raise RuntimeError("Bodhan ASR returned no speech for this video")
 
 
-def _translate_as_heard(dub: DubRun, index: int, segment: Segment, content: dict):
+def _translate_as_heard(dub: DubRun, segment: Segment):
     """Streaming: translate one line just heard, then let the editor polish it with the lines so far as context."""
     segment.translation = translate(
         dub.client, segment.text, dub.language, dub.script, dub.source_language, dub.usage
     )
     segment.state = 'translated'
     if settings.script_supervision:
-        so_far = [piece for piece in dub.segments[: index + 1] if piece.text and piece.translation]
+        # the lines up to this one (by position in the script: a resumed run transcribes only some)
+        position = next(i for i, piece in enumerate(dub.segments) if piece is segment)
+        so_far = [
+            piece for piece in dub.segments[: position + 1] if piece.text and piece.translation
+        ]
         post_edit(
             so_far,
             dub.language,
@@ -165,7 +168,7 @@ def _translate_as_heard(dub: DubRun, index: int, segment: Segment, content: dict
             dub.script,
             dub.usage,
             only=[segment],
-            content=content,
+            content=dub.content,
             targets={
                 len(so_far) - 1: length_targets([segment], dub.speaker_voices, dub.language)[0]
             },
@@ -219,7 +222,6 @@ def translate_script(dub: DubRun):
         _translate_with_openrouter(dub, pending, translated_count)
         translation_engine = 'openrouter'
         translated_progress(len(pending))
-    dub.content = dub.job.get('script_profile') or {}
     if untranslated and settings.script_supervision:
         if not dub.content:
             dub.mark('translate', 'Reading the content', dub.span('translate', 0.95))
