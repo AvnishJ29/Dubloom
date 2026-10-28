@@ -38,6 +38,7 @@ def _samples(audio: Path):
 
 
 def _windows(start: float, end: float):
+    """Embedding windows of a speech region: the region itself up to 3.5 s, else 3 s every 1.5 s."""
     if end - start <= 3.5:
         return [(start, end)]
     width, step = 3.0, 1.5
@@ -52,6 +53,13 @@ def _windows(start: float, end: float):
 
 
 def diarize(audio: Path) -> list[Segment]:
+    """Diarize a 16 kHz mono 16-bit WAV with Silero VAD and SpeechBrain ECAPA embeddings.
+
+    Speech regions are embedded in 3 s windows (1.5 s hop); windows of at least 2 s are clustered
+    (cosine distance 0.45) and shorter ones join the nearest cluster. Within a region the speaker
+    changes halfway between window midpoints. Same-speaker turns less than 0.4 s apart are joined
+    (up to 25 s). Labels are SPEAKER_00, SPEAKER_01, ... in order of appearance.
+    """
     import torch
     from silero_vad import get_speech_timestamps
     from sklearn.cluster import AgglomerativeClustering

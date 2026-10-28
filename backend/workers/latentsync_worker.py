@@ -50,6 +50,10 @@ def _split_windows(latent, n, window, do_cfg):
 
 
 def spans_of(track: np.ndarray):
+    """[start, end) frame spans of one target face each, at most MAX_SPAN frames long.
+
+    `track` holds the target track id per frame; frames with -1 belong to no span.
+    """
     spans, start = [], None
     for index, value in enumerate(track.tolist() + [-1]):
         if start is not None and (value != track[start] or index - start >= MAX_SPAN):
@@ -104,6 +108,12 @@ def store_span(path, frames, fps):
 
 
 def main():
+    """Lip-sync the target spans of VIDEO to VOICE.
+
+    Writes the full video to OUT.mp4 (untargeted frames copied), or with --spans-only only the
+    rendered spans and spans.json in the --cache directory. Prints "Rendered n of m frames"
+    progress and a final DONE line.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("video")
     parser.add_argument("audio")
@@ -265,6 +275,7 @@ def main():
     )
 
     def span_key(first, end):
+        """Cache key of a span: settings, landmarks, track and the Whisper features it uses."""
         digest = hashlib.sha256(signature.encode())
         digest.update(np.ascontiguousarray(lmk[first:end]).tobytes())
         digest.update(str(int(track[first])).encode())
@@ -289,6 +300,7 @@ def main():
                 os.remove(stale)
 
     def cached_frames(span):
+        """Frames of a span from the cache, or None when absent or incomplete."""
         path = os.path.join(cache_dir, f"span_{keys[span]}.mp4") if cache_dir else None
         if not path or not os.path.isfile(path):
             return None

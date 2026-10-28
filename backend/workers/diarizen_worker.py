@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 def main():
+    """Diarize AUDIO with DiariZen; write raw turns to OUT.json, labelled by first appearance."""
     parser = argparse.ArgumentParser()
     parser.add_argument("audio")
     parser.add_argument("output")

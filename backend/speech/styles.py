@@ -111,22 +111,27 @@ TONE_TO_STYLE = {
 
 
 def normalise_style(style: str | None) -> str:
+    """The style id itself when it is known, otherwise "neutral"."""
     return style if style in DELIVERY_STYLES else "neutral"
 
 
 def bodhan_style(style: str | None) -> str | None:
+    """Bodhan `instructions` style for a style id, or None for a neutral delivery."""
     return DELIVERY_STYLES[normalise_style(style)]["bodhan"]
 
 
 def style_prompt(style: str | None) -> str | None:
+    """Natural-language direction for prompt-driven TTS (Gemini), or None."""
     return DELIVERY_STYLES[normalise_style(style)]["prompt"]
 
 
 def style_tag(style: str | None) -> str | None:
+    """Emotion tag for the voice-cloning engine, or None."""
     return DELIVERY_STYLES[normalise_style(style)]["tag"]
 
 
 def style_options() -> list[dict]:
+    """Every style as {id, label, bodhan}, in display order, for the UI."""
     return [
         {"id": key, "label": value["label"], "bodhan": value["bodhan"]}
         for key, value in DELIVERY_STYLES.items()

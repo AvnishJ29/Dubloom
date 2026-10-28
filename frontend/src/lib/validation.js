@@ -12,6 +12,7 @@ export function parseClock(value) {
   const seconds = parts.reduce((total, part) => total * 60 + part, 0)
   return Number.isFinite(seconds) ? seconds : NaN
 }
+/** True for an absolute http(s) URL with a host. */
 export function validVideoUrl(value) {
   try {
     const url = new URL(value.trim())

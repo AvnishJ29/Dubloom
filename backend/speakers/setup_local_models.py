@@ -11,6 +11,7 @@ BASE = 'https://github.com/k2-fsa/sherpa-onnx/releases/download/'
 
 
 def install_models():
+    """Fetch the segmentation and CAM++ embedding models into <jobs dir>/models/sherpa if absent."""
     folder = settings.jobs_dir / 'models' / 'sherpa'
     folder.mkdir(parents=True, exist_ok=True)
     segmentation = folder / 'sherpa-onnx-pyannote-segmentation-3-0/model.onnx'
@@ -26,6 +27,7 @@ def install_models():
     embedding = folder / '3dspeaker_speech_campplus_sv_zh-cn_16k-common.onnx'
     if not embedding.is_file():
         pending = embedding.with_suffix('.download')
+        # 'recongition' is the upstream release tag's own spelling
         urlretrieve(BASE + 'speaker-recongition-models/' + embedding.name, pending)
         pending.replace(embedding)
     print('Local diarization models are ready.')

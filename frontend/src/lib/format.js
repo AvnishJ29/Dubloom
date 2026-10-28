@@ -1,3 +1,4 @@
+/** Pipeline stages in order, as the progress view shows them; `key` matches the job's `stage_key`. */
 export const STAGES = [
   { key: 'source', label: 'Fetching the video', short: 'Video', icon: 'bi-cloud-arrow-down' },
   { key: 'audio', label: 'Separating voices from music', short: 'Audio', icon: 'bi-soundwave' },
@@ -30,6 +31,7 @@ export const LIP_MODEL_COPY = {
   },
 }
 
+/** Speaker colours, assigned in order of first appearance. */
 export const PALETTE = [
   '#e8456b',
   '#2f7dd1',
@@ -61,6 +63,7 @@ export function friendlyStage(job) {
   return base
 }
 
+/** Short quality name for a picture height in pixels (4K, Full HD, 480p, ...). */
 export function qualityLabel(height) {
   if (!height) return ''
   if (height >= 2160) return '4K'
@@ -70,6 +73,7 @@ export function qualityLabel(height) {
   return `${height}p`
 }
 
+/** Whole seconds as mm:ss, or h:mm:ss from an hour on. */
 export function timecode(seconds) {
   const n = Math.max(0, Math.floor(seconds || 0))
   const h = Math.floor(n / 3600),
@@ -78,6 +82,7 @@ export function timecode(seconds) {
   return (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
 }
 
+/** Compact duration such as 45s, 3m 20s or 1h 5m; '' when unknown. */
 export function durationLabel(seconds) {
   if (seconds == null || Number.isNaN(seconds)) return ''
   if (seconds < 60) return `${Math.round(seconds)}s`
@@ -87,6 +92,7 @@ export function durationLabel(seconds) {
   return `${Math.floor(m / 60)}h ${m % 60}m`
 }
 
+/** File size in B, KB, MB or GB (binary units); '' for zero or unknown. */
 export function bytes(n) {
   if (!n) return ''
   const units = ['B', 'KB', 'MB', 'GB']
@@ -98,12 +104,14 @@ export function bytes(n) {
   return `${n.toFixed(i ? 1 : 0)} ${units[i]}`
 }
 
+/** Short local date (month and day); '' when missing. */
 export function date(value) {
   return value
     ? new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
     : ''
 }
 
+/** Short local date and time; '' when missing. */
 export function dateTime(value) {
   return value
     ? new Date(value).toLocaleString(undefined, {
@@ -115,6 +123,7 @@ export function dateTime(value) {
     : ''
 }
 
+/** The speaker's reviewed name, else "Speaker N" from a SPEAKER_xx id (numbered from 1). */
 export function speakerLabel(id, profiles) {
   const name = profiles?.[id]?.name
   if (name) return name
@@ -122,12 +131,14 @@ export function speakerLabel(id, profiles) {
   return match ? `Speaker ${parseInt(match[1], 10) + 1}` : id || ''
 }
 
+/** The job's speaker ids in order of first appearance. */
 export function speakerOrder(job) {
   const profiles = job?.speaker_profiles || {}
   const ids = Object.keys(job?.speaker_voices || profiles)
   return ids.sort((a, b) => (profiles[a]?.first_seen ?? 0) - (profiles[b]?.first_seen ?? 0))
 }
 
+/** A PALETTE colour per speaker id, stable for a job. */
 export function speakerColors(job) {
   const colors = {}
   speakerOrder(job).forEach((id, index) => {
@@ -136,6 +147,7 @@ export function speakerColors(job) {
   return colors
 }
 
+/** Icon and label describing what a typed source URL points at, or null when blank or unrecognised. */
 export function sourceKind(url) {
   const value = (url || '').trim().toLowerCase()
   if (!value) return null

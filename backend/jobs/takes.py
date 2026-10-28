@@ -18,6 +18,7 @@ MAX_TAKES_PER_LINE = 8
 
 
 def _seconds(path: Path) -> float:
+    """Media duration in seconds (ffprobe), rounded to 0.01; 0.0 when unknown."""
     out = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
         capture_output=True,

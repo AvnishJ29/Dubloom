@@ -49,6 +49,12 @@ def _write_pcm(chunks: list[bytes], output: Path):
 
 
 def gemini_synthesize(text: str, voice: str, output: Path, style: str | None = None, usage=None):
+    """Speak `text` with a Gemini TTS stock voice; writes a 24 kHz mono WAV to `output`.
+
+    Long text is voiced in pieces joined by short pauses, and `style` becomes a spoken direction
+    in the prompt. A voice the model rejects falls back to Kore. Raises RuntimeError when a piece
+    comes back without audio.
+    """
     direction = style_prompt(style)
     chunks = []
     for piece in split_for_tts(text, max_chars=420, max_sentences=4):

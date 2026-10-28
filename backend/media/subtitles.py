@@ -2,6 +2,7 @@
 
 
 def _timestamp(seconds: float, separator: str = ",") -> str:
+    """HH:MM:SS,mmm timestamp; `separator` "." gives the WebVTT form."""
     seconds = max(0.0, float(seconds))
     hours, rest = divmod(seconds, 3600)
     minutes, rest = divmod(rest, 60)

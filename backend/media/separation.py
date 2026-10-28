@@ -1,4 +1,4 @@
-"""Vocal separation (Demucs) so the background bed carries music and ambience only.
+"""Vocal separation (Demucs or RoFormer) so the background bed carries music and ambience only.
 
 Ducking the original mix leaves the original voices faintly audible under the
 dub. Removing the vocal stem instead gives a clean bed with no echo of the
@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def separation_available() -> bool:
+    """True when the configured backend can run: the RoFormer venv exists, or Demucs imports."""
     if settings.separation_backend == 'roformer':
         return Path(settings.separate_python).is_file()
     try:

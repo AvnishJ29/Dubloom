@@ -1,5 +1,6 @@
 /** Thin API client: JSON requests, XHR uploads with progress, and SSE job subscriptions. */
 
+/** An API failure with the server's message and HTTP status (0 when the request never completed). */
 export class ApiError extends Error {
   constructor(message, status) {
     super(message)
@@ -16,6 +17,7 @@ function errorDetail(body, fallback) {
   return fallback
 }
 
+/** Fetch `/api` + `path` and return the parsed JSON body (null if none); throws ApiError when not ok. */
 export async function request(path, options = {}) {
   const response = await fetch('/api' + path, { credentials: 'same-origin', ...options })
   let body = null
@@ -31,6 +33,7 @@ export async function request(path, options = {}) {
   return body
 }
 
+/** POST `payload` as JSON; resolves like request(). */
 export function post(path, payload) {
   return request(path, {
     method: 'POST',
@@ -39,6 +42,7 @@ export function post(path, payload) {
   })
 }
 
+/** POST multipart `formData`, reporting the uploaded share (0..1) to `onProgress`; rejects with ApiError. */
 export function upload(path, formData, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -65,7 +69,8 @@ export function upload(path, formData, onProgress) {
   })
 }
 
-/** SSE accelerates updates; one polling loop also handles buffering proxies. */
+/** Follow a job: `onData` gets every update, `onDone` runs once it is finished; returns a stop function.
+ *  SSE accelerates updates; one polling loop also handles buffering proxies. */
 export function subscribe(jobId, { onData, onDone, onError }) {
   let closed = false,
     source = null,

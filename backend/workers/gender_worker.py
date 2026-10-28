@@ -26,6 +26,8 @@ LABELS = ("female", "male", "child")
 
 
 class ModelHead(nn.Module):
+    """Output head (age or gender) of audeering's age-gender model: dense, tanh, projection."""
+
     def __init__(self, config, num_labels):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -33,12 +35,18 @@ class ModelHead(nn.Module):
         self.out_proj = nn.Linear(config.hidden_size, num_labels)
 
     def forward(self, features):
+        """Logits for pooled wav2vec2 features."""
         x = self.dropout(features)
         x = torch.tanh(self.dense(x))
         return self.out_proj(self.dropout(x))
 
 
 class AgeGenderModel(Wav2Vec2PreTrainedModel):
+    """wav2vec2 encoder with audeering's age and gender heads.
+
+    The age head is never used; it exists so the checkpoint loads without missing keys.
+    """
+
     def __init__(self, config):
         super().__init__(config)
         self.config = config
@@ -48,11 +56,13 @@ class AgeGenderModel(Wav2Vec2PreTrainedModel):
         self.init_weights()
 
     def forward(self, input_values):
+        """(female, male, child) probabilities for a batch of 16 kHz input values."""
         hidden = self.wav2vec2(input_values)[0].mean(dim=1)
         return torch.softmax(self.gender(hidden), dim=1)
 
 
 def resolve(model: str) -> str:
+    """Local snapshot path of a Hugging Face model, downloading it only when not cached."""
     from huggingface_hub import snapshot_download
 
     try:
@@ -62,6 +72,7 @@ def resolve(model: str) -> str:
 
 
 def load_model(model: str, device: str):
+    """Processor and eval-mode model on `device` for a Hub id or local directory."""
     path = resolve(model)
     processor = Wav2Vec2Processor.from_pretrained(path)
     net = AgeGenderModel.from_pretrained(path).to(device).eval()
@@ -69,6 +80,7 @@ def load_model(model: str, device: str):
 
 
 def load_audio(path: str) -> np.ndarray:
+    """Mono float32 samples at 16 kHz; other sample rates are resampled with ffmpeg."""
     samples, rate = sf.read(path, dtype="float32", always_2d=True)
     if rate == SAMPLE_RATE:
         return samples.mean(axis=1)
@@ -122,6 +134,11 @@ def gender_probs(processor, net, samples: np.ndarray, device: str) -> dict:
 
 
 def main():
+    """Score each speaker's voice and write {speaker: verdict} to OUT.json.
+
+    The verdict pools up to MAX_SECONDS of the speaker's longest turns; every turn of at least
+    MIN_CLIP also gets its own verdict under "turns".
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("audio")
     parser.add_argument("turns")

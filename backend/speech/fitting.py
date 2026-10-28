@@ -60,6 +60,7 @@ SHORT_LINE_WORDS = (
 
 
 def may_lengthen(segment) -> bool:
+    """Only lines of more than SHORT_LINE_WORDS words are lengthened; shorter ones play slower."""
     return len((segment.text or segment.translation).split()) > SHORT_LINE_WORDS
 
 
@@ -80,6 +81,7 @@ class FitReport:
 
 
 def _parse(content: str, expected: set[int]) -> dict[int, str]:
+    """{id: text} for the expected ids found in a JSON reply; other items are ignored."""
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.S)
     data = json.loads(text[text.find("{") : text.rfind("}") + 1])
     out = {}

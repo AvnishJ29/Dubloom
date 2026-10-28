@@ -32,6 +32,7 @@ ENGINE_LABELS = {
 
 
 def clone_available(language: str) -> bool:
+    """True when original-voice cloning through OpenRouter is possible for `language`."""
     return openrouter.configured() and language in OPENROUTER_LANGUAGES
 
 
@@ -96,6 +97,7 @@ class VoiceState:
         self.lock = threading.Lock()
 
     def labels(self) -> dict[str, str]:
+        """Display label per speaker for the engine that voices (or will voice) the project."""
         engine = self.engine or ("clone" if self.mode == "clone" else "bodhan")
         out = {}
         for speaker, voice in self.speaker_voices.items():

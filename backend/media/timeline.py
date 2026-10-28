@@ -115,6 +115,7 @@ def plan_timeline(
 
 
 def ratio_in_band(ratio: float, low: float, high: float) -> bool:
+    """True when `ratio` lies within [low, high], allowing for float rounding."""
     return low - 1e-6 <= ratio <= high + 1e-6
 
 

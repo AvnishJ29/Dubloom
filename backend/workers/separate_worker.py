@@ -14,6 +14,7 @@ import time
 
 
 def main():
+    """Split INPUT into vocal and instrumental WAVs in OUT_DIR."""
     parser = argparse.ArgumentParser()
     parser.add_argument("input")
     parser.add_argument("out_dir")

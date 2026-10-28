@@ -11,6 +11,11 @@ from backend.voices.library import LIBRARY, cast
 
 
 def voice_pool(language: str) -> list[str]:
+    """Bodhan voices to cast from for `language`, without duplicates.
+
+    The language's own voices come first, then those of its priority group, then every other
+    language's. Raises ValueError for an unsupported language.
+    """
     if language not in VOICES:
         raise ValueError('Unsupported speech language')
     priorities = [language]
@@ -22,6 +27,7 @@ def voice_pool(language: str) -> list[str]:
 
 
 def voice_details(language: str) -> list[dict]:
+    """voice_pool(language) with each voice's gender, language, pitch and card text, for the UI."""
     details = []
     for name in voice_pool(language):
         card = LIBRARY.get(name, {})
@@ -49,8 +55,9 @@ def assign_voices(
     preferred_voices: list[str] | None = None,
 ) -> dict[str, str]:
     """Use the preferred voice for the first speaker, then distinct voices.
-    With the voice library present, casting scores language, genre fit and register (see voice_library);
-    `reasons`, if given, is filled with one line per speaker."""
+    With the voice library present, casting scores language, genre fit and register (see
+    voices.library.cast); `reasons`, if given, is filled with one line per speaker.
+    """
     speakers = list(dict.fromkeys(speakers))
     voices = voice_pool(language)
     if preferred_voice and preferred_voice not in voices:

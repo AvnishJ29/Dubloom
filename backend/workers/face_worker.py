@@ -35,6 +35,11 @@ def mouth_crop(gray: np.ndarray, kps: np.ndarray) -> np.ndarray:
 
 
 def main():
+    """Analyse frames [--first, --last) of VIDEO and write one row per face to OUT.npz.
+
+    Also stores a thumbnail of every frame read, `frame_count` (index after the last frame read)
+    and `first`, so parallel workers' outputs can be merged.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("video")
     parser.add_argument("output")

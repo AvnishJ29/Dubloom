@@ -7,6 +7,7 @@ from backend.config import ROOT
 
 
 def configure_logging():
+    """Log INFO and above to the console and to logs/studio.log (5 MB x 3); safe to call twice."""
     logs = ROOT / "logs"
     logs.mkdir(exist_ok=True)
     fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
