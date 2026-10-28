@@ -25,7 +25,9 @@ LIP_SYNC_MODELS = {
 
 
 def default_model() -> str:
-    from backend.rendering.lip_sync import latentsync_available
+    """The model for a job that names none: LatentSync on a CUDA machine that has it (unless LIP_SYNC_MODEL
+    asks for Wav2Lip GAN or voice only), otherwise the configured model, or Wav2Lip."""
+    from backend.rendering.latentsync import latentsync_available
 
     configured = (settings.lip_sync_model or "").lower()
     if (
@@ -57,7 +59,8 @@ def checkpoint_for(model: str | None) -> tuple[str, Path]:
 
 
 def available_models() -> list[dict]:
-    from backend.rendering.lip_sync import latentsync_available
+    """Every model in LIP_SYNC_MODELS with whether this machine can run it, for the studio's picker."""
+    from backend.rendering.latentsync import latentsync_available
 
     files = {
         "wav2lip": settings.wav2lip_accurate_checkpoint,

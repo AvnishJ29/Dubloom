@@ -147,7 +147,7 @@ The order below is conceptual. Separation and face analysis can overlap other st
 | Voice | `voices.VoiceState`, `tts.synthesize()` | Script, speaker and delivery → voiced line WAVs |
 | Duration fitting | `fitting.py`, `timeline.plan_timeline()` | Natural speech durations → fitted text and placement decisions |
 | Mix | `audio_merge.assemble_timeline()` | Placed speech and background → clean voice track and delivered mix |
-| Face/lip sync | `speaker_faces.py`, `lip_sync.py`, `workers/` | Visible speaking faces and dubbed speech → rendered mouth spans |
+| Face/lip sync | `speaker_faces.py`, `face_analysis.py`, `lip_sync.py`, `latentsync.py`, `wav2lip.py`, `workers/` | Visible speaking faces and dubbed speech → rendered mouth spans |
 | Finish/export | `finish.py`, `media_validation.py`, `subtitles.py` | Rendered spans, picture and mix → validated video and exportable subtitles |
 
 Suggested narration:
