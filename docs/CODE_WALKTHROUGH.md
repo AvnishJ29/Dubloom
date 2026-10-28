@@ -225,7 +225,7 @@ npm test
 npm run build
 ```
 
-At preparation time, **157 backend tests and 13 frontend tests passed**. These counts can change with later commits. GitHub CI checks formatting, frontend tests/build and Python syntax; the full backend suite was run in the configured cluster environment.
+At preparation time, **170 backend tests and 13 frontend tests passed** (one backend test skips until the Real-ESRGAN weights are downloaded). These counts can change with later commits. GitHub CI checks formatting, frontend tests/build and Python syntax; the full backend suite was run in the configured cluster environment.
 
 > “The tests cover orchestration, timing, caching, history, API handling and media processing. They do not prove that every learned-model result will be correct. For example, shorter ASR chunks can produce unusable output, and a video with no eligible visible speaking face will have no lip-synced frames. The application reports those cases rather than treating every finished render as perfect lip sync.”
 
