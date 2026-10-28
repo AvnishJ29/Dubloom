@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 
 from backend.config import ROOT, settings
-from backend.rendering.lip_sync import _digest, _stream
+from backend.rendering.video_tools import file_digest, run_worker
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def classify_genders(audio: Path, turns, directory: Path, control=None) -> dict[
     turns_path.write_text(json.dumps(spans, sort_keys=True), encoding='utf-8')
     output, stamp = directory / 'gender.json', directory / 'gender.sha256'
     digest = hashlib.sha256(
-        f"{_digest(audio)}:{turns_path.read_text()}:{settings.gender_model}".encode()
+        f"{file_digest(audio)}:{turns_path.read_text()}:{settings.gender_model}".encode()
     ).hexdigest()
     if not (output.is_file() and stamp.is_file() and stamp.read_text() == digest):
         command = [
@@ -51,7 +51,7 @@ def classify_genders(audio: Path, turns, directory: Path, control=None) -> dict[
             '--device',
             settings.device,
         ]
-        _stream(command, ROOT, control, lambda line: None, label='Gender classifier')
+        run_worker(command, ROOT, control, lambda line: None, label='Gender classifier')
         stamp.write_text(digest)
     result = json.loads(output.read_text(encoding='utf-8'))
     for (
@@ -64,6 +64,7 @@ def classify_genders(audio: Path, turns, directory: Path, control=None) -> dict[
 
 
 def _vote(turns: list[dict]) -> tuple[str | None, float]:
+    """The gender with the most confidence-weighted seconds over the turns, and its share of the total."""
     seconds = {'female': 0.0, 'male': 0.0}
     for turn in turns:
         seconds[turn['gender']] += (turn['end'] - turn['start']) * turn['confidence']

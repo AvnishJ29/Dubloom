@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from backend.rendering.lip_sync import _slice_digest, _target_arrays
+from backend.rendering.wav2lip import _slice_digest, _target_arrays
 
 
 class ChunkStampTest(unittest.TestCase):

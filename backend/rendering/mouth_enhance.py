@@ -20,6 +20,7 @@ FEATHER = 0.04  # of the crop width
 
 
 def _load_model(device: str):
+    """Real-ESRGAN (the compact network bundled with Wav2Lip) on `device`, and the torch module."""
     sys.path.insert(0, str(ROOT / "Wav2Lip"))
     import torch
     from enhance import SRVGGNetCompact
@@ -31,6 +32,7 @@ def _load_model(device: str):
 
 
 def mouth_box(bbox: np.ndarray, width: int, height: int) -> tuple[int, int, int, int]:
+    """(x1, y1, x2, y2) of the region to sharpen: the lower face of `bbox` with a margin, inside the frame."""
     x1, y1, x2, y2 = bbox
     w, h = x2 - x1, y2 - y1
     return (

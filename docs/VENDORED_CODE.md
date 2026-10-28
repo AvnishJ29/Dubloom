@@ -4,7 +4,7 @@ These folders are dependencies of the studio, rather than obsolete experiments. 
 
 | Path | Why it remains | Integration |
 | --- | --- | --- |
-| `Wav2Lip/` | Modified local lip-sync fallback, face detection and rendering utilities | `backend/rendering/lip_sync.py`; checkpoint paths in `.env.example` |
+| `Wav2Lip/` | Modified local lip-sync fallback, face detection and rendering utilities | `backend/rendering/wav2lip.py`; checkpoint paths in `.env.example` |
 | `backend/vendor/normalize_volume.py` | Preserved audio-normalization implementation used by the studio | `backend/media/audio_norm.py` |
 | `fonts/` | Devanagari fonts for burned-in subtitle rendering | `backend/media/shorts.py` |
 

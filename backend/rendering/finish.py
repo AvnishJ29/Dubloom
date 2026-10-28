@@ -20,6 +20,7 @@ import numpy as np
 
 from backend.config import ROOT, settings
 from backend.rendering.mouth_enhance import MIN_FACE_WIDTH, enhance_lips
+from backend.rendering.video_tools import run_worker
 
 logger = logging.getLogger(__name__)
 GFPGAN_MIN = 60  # the GFPGAN worker's floor (restore_worker.py --min-face)
@@ -27,6 +28,7 @@ GOP = 25  # a keyframe every second: later edits can be stitched at second bound
 
 
 def restore_stamp(gfpgan: bool, esrgan: bool) -> str:
+    """The restoration settings, written into each restored span's file name: other settings, another file."""
     split = settings.restore_split_px if gfpgan else 0
     return f"g{GFPGAN_MIN}-{split}t{settings.restore_temporal:g}e{int(esrgan)}"
 
@@ -112,7 +114,6 @@ def restore_spans(
         total = sum(span['end'] - span['first'] for span in gfpgan_jobs)
         counted = {'frames': 0, 'done': [0] * workers}
         lock = threading.Lock()
-        from backend.rendering.lip_sync import _stream
 
         def run_batch(k):
             batch = Path(manifest['spans'][0]['file']).parent / f'restore_batch_{k}.json'
@@ -144,7 +145,7 @@ def restore_spans(
                 '--temporal',
                 str(settings.restore_temporal),
             ]
-            _stream(command, ROOT, control, on_line, label='Face restoration')
+            run_worker(command, ROOT, control, on_line, label='Face restoration')
 
         with ThreadPoolExecutor(max_workers=workers) as pool:
             for future in [pool.submit(run_batch, k) for k in range(workers)]:
