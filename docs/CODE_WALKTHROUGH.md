@@ -42,7 +42,7 @@ scripts/setup_models.sh cuda
 ./run.sh
 ```
 
-Use `scripts/setup_models.sh cpu` for CPU setup. The private repository requires GitHub authentication.
+Use `scripts/setup_models.sh cpu` for CPU setup.
 
 > “The setup script creates separate model environments and downloads the required code and weights. This isolation matters because the model packages use different dependency versions. The launcher installs the main studio dependencies when needed, builds a missing frontend, prepares fallback diarization models and starts the app.”
 
@@ -76,13 +76,13 @@ Dubloom/
 │   ├── api/                   # Routes (one router per concern) and request validation
 │   ├── config.py              # Environment settings
 │   ├── models.py              # Shared Segment records
-│   ├── jobs/                  # Pipeline, persistence, versions and takes
+│   ├── jobs/                  # Pipeline runner, stages/, job store, cancellation, versions, takes
 │   ├── media/                 # Input, audio, timing and deliverables
 │   ├── speech/                # ASR, translation, script editing and TTS
 │   ├── speakers/              # Diarization and speaker/face evidence
 │   ├── voices/                # Catalogue, casting and synthesis routing
 │   ├── providers/             # API clients, pacing and usage
-│   ├── rendering/             # Lip sync, restoration and assembly
+│   ├── rendering/             # Face analysis, lip sync, restoration and assembly
 │   ├── workers/               # Isolated model processes
 │   ├── tests/                 # Backend regression tests
 │   └── vendor/                # Required normalization implementation
@@ -112,7 +112,7 @@ Open these files in order:
 3. [CreatePanel.vue](../frontend/src/components/CreatePanel.vue): `submit()` builds the creation options.
 4. [lib/api.js](../frontend/src/lib/api.js): `post()` sends JSON; `upload()` sends multipart data with progress.
 5. [backend/api/jobs.py](../backend/api/jobs.py): `create_job()` or `create_upload_job()` validates inputs and calls `start_job()`.
-6. [backend/jobs/pipeline.py](../backend/jobs/pipeline.py): `run_job()` manages attempts; `process_job()` runs the stages.
+6. [backend/jobs/pipeline.py](../backend/jobs/pipeline.py): `run_job()` manages attempts; `process_job()` is the whole pipeline in about 50 lines, one call per stage module in [backend/jobs/stages/](../backend/jobs/stages/).
 
 > “A URL becomes a POST to /api/jobs; an upload goes to /api/jobs/upload. The API validates the options, saves a queued job and submits it to an executor. It returns a job ID instead of holding the HTTP request open for the entire render. The browser uses that ID to display progress and results.”
 
@@ -139,7 +139,7 @@ The order below is conceptual. Separation and face analysis can overlap other st
 
 | Stage | Code to open | Input → result |
 | --- | --- | --- |
-| Source | `video_input.py`; `pipeline.acquire_source()` | URL/upload/saved source → prepared video, metadata and poster |
+| Source | `stages/source.py` (`acquire_source()`); `video_input.py` | URL/upload/saved source → prepared video, metadata and poster |
 | Audio | `video_input.extract_audio()`, `separation.py` | Soundtrack → speech WAV and optional vocals/background stems |
 | Speakers | `diarization.py`, `speaker_review.py`, `gender.py` | Speech → timed speaker turns, profiles and casting evidence |
 | ASR | `asr.transcribe()`, `bodhan_api.py` | Each speech slot → source transcript |
@@ -185,7 +185,7 @@ Do not describe exact mode as guaranteeing an exact end time for every line: pac
 
 ## 6. Explain state, concurrency and edits
 
-Open `JobStore`, `JobControl`, `run_segment_stage()` and `heavy_stage()` in [pipeline.py](../backend/jobs/pipeline.py).
+Open `JobStore` in [store.py](../backend/jobs/store.py), `JobControl`, `run_segment_stage()` and `heavy_stage()` in [control.py](../backend/jobs/control.py), and `DubRun` in [context.py](../backend/jobs/context.py).
 
 > “Job state is stored in status.json. Updates use a temporary file and atomic replacement, with a process-local lock for mutations. Cancellation is cooperative and also stops registered worker processes.
 >

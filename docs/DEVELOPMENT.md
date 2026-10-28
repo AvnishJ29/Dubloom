@@ -2,7 +2,7 @@
 
 ## Where changes belong
 
-Keep routes in `backend/api/` (one router module per concern, request bodies in `schemas.py`, shared validation in `helpers.py`), orchestration in `backend/jobs/pipeline.py`, and stage implementations in their feature packages. Shared records belong in `backend/models.py`; environment configuration belongs in `backend/config.py` and `.env.example`.
+Keep routes in `backend/api/` (one router module per concern, request bodies in `schemas.py`, shared validation in `helpers.py`), orchestration in `backend/jobs/pipeline.py` with one module per stage in `backend/jobs/stages/` (each takes the run's `DubRun`), and the processing itself in the feature packages. Shared records belong in `backend/models.py`; environment configuration belongs in `backend/config.py` and `.env.example`.
 
 Vue components own UI state and interactions. Reusable client behavior belongs in `frontend/src/lib/`. Styles live in `frontend/src/styles/`; `frontend/src/style.css` imports them in cascade order. Preserve that order when editing styles. Generated files in `frontend/dist/` come from `npm run build` and are excluded from Git.
 

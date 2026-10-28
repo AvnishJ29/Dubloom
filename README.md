@@ -27,8 +27,6 @@ Speech services use Bodhan **Indic-Transcribe, Indic-Translate and Indic-Speak**
 
 ## Install and run
 
-Authenticate to GitHub first: this repository is private.
-
 ```bash
 git clone https://github.com/AvnishJ29/Dubloom.git
 cd Dubloom
@@ -72,13 +70,13 @@ The pipeline reuses unchanged speech, model analysis and rendered spans. Process
 | --- | --- |
 | `main.py`, `run.sh` | Application entry point and launcher |
 | `backend/api/`, `backend/config.py`, `backend/models.py` | HTTP routes (one router per concern), environment settings and shared records |
-| `backend/jobs/` | Pipeline orchestration, persistence, render history, takes and GPU slots |
+| `backend/jobs/` | `pipeline.py` runs the stages in `stages/` (source, speakers, script, voicing, mix, render) in order; job store, cancellation, GPU slots, render history and takes |
 | `backend/media/` | Media input, audio processing, timing, validation, subtitles and shorts |
 | `backend/speech/` | ASR, translation, script supervision, TTS and duration fitting |
 | `backend/speakers/` | Diarization, speaker profiles, face evidence and gender analysis |
 | `backend/voices/` | Voice catalogue, library data, casting and synthesis routing |
 | `backend/providers/` | Bodhan/OpenRouter clients, pacing and usage accounting |
-| `backend/rendering/` | Lip-sync engines, face restoration and final assembly |
+| `backend/rendering/` | Face analysis, lip-sync engines (LatentSync, Wav2Lip), face restoration and final assembly |
 | `backend/workers/` | Model processes running in isolated environments |
 | `backend/tests/` | Backend regression tests |
 | `frontend/src/components/` | Vue screens and reusable controls |
@@ -91,6 +89,8 @@ The pipeline reuses unchanged speech, model analysis and rendered spans. Process
 | `Wav2Lip/`, `backend/vendor/` | Vendored implementations; see [vendored-code guide](docs/VENDORED_CODE.md) |
 | `models/`, `third_party/`, `.venv*/`, `gfpgan/weights/` | Local weights, checkouts and environments; not committed |
 | `jobs/`, `logs/`, `scratch/` | Runtime data; not committed |
+
+To read the code, start with `process_job()` in [`backend/jobs/pipeline.py`](backend/jobs/pipeline.py): it lists the whole pipeline in order, one call per stage. Each stage module in `backend/jobs/stages/` then calls the feature packages above.
 
 Generated `frontend/dist/` assets are built locally and are not committed. `run.sh` builds them when missing. Keep source assets in `frontend/public/` and application code in `frontend/src/`.
 
@@ -118,17 +118,6 @@ npm run build
 Backend tests use FFmpeg/ffprobe; model/provider interactions are generally mocked. The full setup is needed for real end-to-end dubbing. API documentation is available at **http://localhost:8001/docs**. CI checks formatting, client tests, Python syntax and the frontend build.
 
 See the [video/code walkthrough guide](docs/CODE_WALKTHROUGH.md), [development conventions](docs/DEVELOPMENT.md), [full pipeline](docs/PIPELINE.md) and [cluster deployment script](scripts/deploy_to_cluster.sh).
-
-## Evaluation submission guide
-
-| Shared evaluation requirement | Where to review |
-| --- | --- |
-| Clean, readable and organized code | Feature packages listed above; formatting rules in [development conventions](docs/DEVELOPMENT.md) |
-| Appropriate comments and docstrings | Module and function interfaces, worker inputs, timing rules and persistence code |
-| Project overview, features, setup and run instructions | This README, with configuration details in [`.env.example`](.env.example) |
-| Folder structure, code organization and key components | Code structure above and the [phase/model walkthrough](docs/PIPELINE.md) |
-
-Repository: [AvnishJ29/Dubloom](https://github.com/AvnishJ29/Dubloom). It is private as requested; evaluators must be granted repository access.
 
 ## License
 

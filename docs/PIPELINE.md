@@ -1,6 +1,6 @@
 # Dubbing pipeline
 
-The studio turns a URL or uploaded video into an editable dub. This guide follows [jobs/pipeline.py](../backend/jobs/pipeline.py); background stages can overlap. [config.py](../backend/config.py) and [`.env.example`](../.env.example) define configuration.
+The studio turns a URL or uploaded video into an editable dub. This guide follows `process_job()` in [jobs/pipeline.py](../backend/jobs/pipeline.py), which calls the stage modules in [jobs/stages/](../backend/jobs/stages/) in order; background stages can overlap. [config.py](../backend/config.py) and [`.env.example`](../.env.example) define configuration.
 
 [Recording guide](CODE_WALKTHROUGH.md)
 
@@ -23,8 +23,8 @@ flowchart TD
 
 1. Vue's `CreatePanel.vue` submits JSON to `POST /api/jobs`, or multipart data to `POST /api/jobs/upload`.
 2. `backend/api/jobs.py` validates options, persists a queued job and schedules it in an executor. It returns a job ID.
-3. `JobStore` in `backend/jobs/pipeline.py` persists `jobs/<id>/status.json`. `JobControl` manages cancellation and child processes. The browser subscribes to `/api/jobs/{id}/events` for progress.
-4. `run_job()` manages attempts; `process_job()` runs the stages and reuses valid intermediate results.
+3. `JobStore` in `backend/jobs/store.py` persists `jobs/<id>/status.json`. `JobControl` in `backend/jobs/control.py` manages cancellation and child processes. The browser subscribes to `/api/jobs/{id}/events` for progress.
+4. `run_job()` manages attempts; `process_job()` runs the stages and reuses valid intermediate results. The stages share one `DubRun` (`backend/jobs/context.py`) holding the job's options and what each stage hands on.
 5. The API serves output, reports, edits and history from the job directory.
 
 `JOB_WORKERS` limits concurrent jobs. `RENDER_WORKERS` and `backend/jobs/gpus.py` bound expensive model work. Workers use separate environments to isolate incompatible dependencies.
@@ -35,16 +35,16 @@ Code paths below are relative to `backend/`. `Segment` records in `models.py` ca
 
 | Phase | Code | Work and result |
 | --- | --- | --- |
-| 1. Source | `media/video_input.py`; `jobs/pipeline.acquire_source()` | Validate URL/upload or reuse a saved source; apply clip range; prepare video, metadata and poster. `MAX_VIDEO_HEIGHT` controls resolution, up to 2160. |
-| 2. Audio | `media/video_input.py`, `media/separation.py` | Extract speech audio; optionally separate vocals and background. |
-| 3. Speakers | `speakers/diarization.py`, `speaker_profiles.py`, `speaker_review.py`, `gender.py` | Detect turns, refine boundaries, review ownership and build speaker profiles. |
-| 4. Faces | `speakers/speaker_faces.py`, `rendering/face_analysis.py`, `workers/` | Cache faces, identities, speaking evidence and hand occlusions in the background. |
-| 5. ASR | `speech/asr.py`, `providers/bodhan_api.py` | Transcribe speech slots with Indic-Transcribe; check degenerate/script-mismatched results and optionally review transcripts. |
-| 6. Translation/script | `speech/translation.py`, `llm_translation.py`, `script_supervisor.py` | Translate lines, optionally post-edit with context, and estimate wording that fits. Preserve machine translations. |
-| 7. Casting/voice | `voices/assignment.py`, `library.py`, `engine.py`; `speech/tts.py` | Match voices using language, profiles and user choices; incorporate face evidence; synthesize a WAV per line. |
-| 8. Fit | `speech/fitting.py`, `media/timeline.py` | Measure durations, rephrase/re-voice eligible lines and plan bounded tempo changes. |
-| 9. Mix | `media/audio_merge.py`, `audio_norm.py` | Level and place clips, mix the background and normalize output. Write the delivered mix and voice-only track. |
-| 10. Lip sync | `rendering/lip_sync.py`, `latentsync.py`, `wav2lip.py`, `finish.py`, `mouth_enhance.py`; `workers/` | Redraw eligible speaking faces, restore generated regions and assemble video. Voice-only mode retains the source picture. |
+| 1. Source | `jobs/stages/source.py`; `media/video_input.py` | Validate URL/upload or reuse a saved source; apply clip range; prepare video, metadata and poster. `MAX_VIDEO_HEIGHT` controls resolution, up to 2160. |
+| 2. Audio | `jobs/stages/source.py`, `jobs/stages/background.py`; `media/separation.py` | Extract speech audio; optionally separate vocals and background. |
+| 3. Speakers | `jobs/stages/speakers.py`; `speakers/diarization.py`, `speaker_profiles.py`, `speaker_review.py`, `gender.py` | Detect turns, refine boundaries, review ownership and build speaker profiles. |
+| 4. Faces | `jobs/stages/background.py`; `speakers/speaker_faces.py`, `rendering/face_analysis.py`, `workers/` | Cache faces, identities, speaking evidence and hand occlusions in the background. |
+| 5. ASR | `jobs/stages/script.py`; `speech/asr.py`, `providers/bodhan_api.py` | Transcribe speech slots with Indic-Transcribe; check degenerate/script-mismatched results and optionally review transcripts. |
+| 6. Translation/script | `jobs/stages/script.py`; `speech/translation.py`, `llm_translation.py`, `script_supervisor.py` | Translate lines, optionally post-edit with context, and estimate wording that fits. Preserve machine translations. |
+| 7. Casting/voice | `jobs/stages/speakers.py`, `jobs/stages/voicing.py`; `voices/assignment.py`, `library.py`, `engine.py`; `speech/tts.py` | Match voices using language, profiles and user choices; incorporate face evidence; synthesize a WAV per line. |
+| 8. Fit | `jobs/stages/voicing.py`; `speech/fitting.py`, `media/timeline.py` | Measure durations, rephrase/re-voice eligible lines and plan bounded tempo changes. |
+| 9. Mix | `jobs/stages/mix.py`; `media/audio_merge.py`, `audio_norm.py` | Level and place clips, mix the background and normalize output. Write the delivered mix and voice-only track. |
+| 10. Lip sync | `jobs/stages/render.py`; `rendering/lip_sync.py`, `latentsync.py`, `wav2lip.py`, `finish.py`, `mouth_enhance.py`; `workers/` | Redraw eligible speaking faces, restore generated regions and assemble video. Voice-only mode retains the source picture. |
 | 11. Delivery | `media/media_validation.py`, `video_input.py`, `subtitles.py`, `shorts.py` | Validate export; create a preview when needed; deliver video/audio/subtitles and optional vertical shorts. |
 
 ## Models and services
