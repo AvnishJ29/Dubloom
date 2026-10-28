@@ -71,7 +71,7 @@ The pipeline reuses unchanged speech, model analysis and rendered spans. Process
 | Path | Responsibility |
 | --- | --- |
 | `main.py`, `run.sh` | Application entry point and launcher |
-| `backend/api.py`, `backend/config.py`, `backend/models.py` | HTTP routes, environment settings and shared records |
+| `backend/api/`, `backend/config.py`, `backend/models.py` | HTTP routes (one router per concern), environment settings and shared records |
 | `backend/jobs/` | Pipeline orchestration, persistence, render history, takes and GPU slots |
 | `backend/media/` | Media input, audio processing, timing, validation, subtitles and shorts |
 | `backend/speech/` | ASR, translation, script supervision, TTS and duration fitting |

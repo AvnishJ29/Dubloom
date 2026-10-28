@@ -22,7 +22,7 @@ flowchart TD
 ## Request and execution
 
 1. Vue's `CreatePanel.vue` submits JSON to `POST /api/jobs`, or multipart data to `POST /api/jobs/upload`.
-2. `backend/api.py` validates options, persists a queued job and schedules it in an executor. It returns a job ID.
+2. `backend/api/jobs.py` validates options, persists a queued job and schedules it in an executor. It returns a job ID.
 3. `JobStore` in `backend/jobs/pipeline.py` persists `jobs/<id>/status.json`. `JobControl` manages cancellation and child processes. The browser subscribes to `/api/jobs/{id}/events` for progress.
 4. `run_job()` manages attempts; `process_job()` runs the stages and reuses valid intermediate results.
 5. The API serves output, reports, edits and history from the job directory.
