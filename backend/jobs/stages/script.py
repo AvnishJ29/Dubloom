@@ -48,15 +48,18 @@ def understand_content(dub: DubRun):
             for s in dub.segments
             if s.reference_text
         ]
-        dub.content = profile_content(
-            heard,
-            dub.job.get('source_meta') or {},
-            dub.job.get('title') or '',
-            dub.source_language,
-            dub.usage,
-        )
-        if dub.content:
-            dub.save(script_profile=dub.content)
+        # Without the reviewer's transcripts, the translate stage profiles from Bodhan's instead:
+        # a profile from the title alone would stand in for one made from the dialogue.
+        if heard:
+            dub.content = profile_content(
+                heard,
+                dub.job.get('source_meta') or {},
+                dub.job.get('title') or '',
+                dub.source_language,
+                dub.usage,
+            )
+            if dub.content:
+                dub.save(script_profile=dub.content)
 
 
 def transcribe_script(dub: DubRun):
@@ -155,7 +158,7 @@ def _translate_as_heard(dub: DubRun, segment: Segment):
         dub.client, segment.text, dub.language, dub.script, dub.source_language, dub.usage
     )
     segment.state = 'translated'
-    if settings.script_supervision:
+    if settings.script_supervision and segment.translation:
         # the lines up to this one (by position in the script: a resumed run transcribes only some)
         position = next(i for i, piece in enumerate(dub.segments) if piece is segment)
         so_far = [

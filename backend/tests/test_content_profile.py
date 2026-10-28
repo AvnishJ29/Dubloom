@@ -30,8 +30,9 @@ class FakeStore:
 
 
 class ContentProfileTest(unittest.TestCase):
-    def run_script_stages(self, streaming):
-        """Run the script stages of a fresh dub with the models faked; returns (profile_content, post_edit)."""
+    def run_script_stages(self, streaming, reviewed=True):
+        """Run the script stages of a fresh dub with the models faked; returns (profile_content, post_edit).
+        `reviewed` gives the lines the speaker reviewer's own transcripts."""
         record = {'id': 'job', 'language': 'hi', 'source_language': 'en', 'title': 'Calculus 101'}
         fake_store = FakeStore(record)
         profile_content = MagicMock(return_value=PROFILE)
@@ -53,9 +54,10 @@ class ContentProfileTest(unittest.TestCase):
             dub.job = dict(record)
             dub.language, dub.source_language, dub.streaming = 'hi', 'en', streaming
             dub.directory, dub.source_audio = Path(temp), Path(temp) / 'source_audio.wav'
+            heard = 'Hello there' if reviewed else ''
             dub.segments = [
-                Segment(0, 2, 'SPEAKER_00', reference_text='Hello there'),
-                Segment(3, 5, 'SPEAKER_00', reference_text='Hello there'),
+                Segment(0, 2, 'SPEAKER_00', reference_text=heard),
+                Segment(3, 5, 'SPEAKER_00', reference_text=heard),
             ]
             dub.speakers = ['SPEAKER_00']
             script.understand_content(dub)
@@ -73,6 +75,14 @@ class ContentProfileTest(unittest.TestCase):
     def test_staged_editor_reuses_the_profile(self):
         profile_content, post_edit = self.run_script_stages(streaming=False)
         self.assertEqual(profile_content.call_count, 1)  # not profiled a second time
+        self.assertEqual(post_edit.call_args.kwargs['content'], PROFILE)
+
+    def test_without_reviewer_transcripts_the_profile_reads_the_dialogue(self):
+        profile_content, post_edit = self.run_script_stages(streaming=False, reviewed=False)
+        self.assertEqual(profile_content.call_count, 1)  # once, after transcription
+        lines, meta, title = profile_content.call_args.args[:3]
+        self.assertEqual([line.text for line in lines], ['Hello there', 'Hello there'])
+        self.assertEqual(title, 'Calculus 101')
         self.assertEqual(post_edit.call_args.kwargs['content'], PROFILE)
 
     def test_profile_reads_the_downloaded_title(self):
