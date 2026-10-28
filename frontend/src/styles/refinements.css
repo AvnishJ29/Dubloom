@@ -41,13 +41,13 @@
 }
 @media (hover: none) and (pointer: coarse) {
   .mode-pill,
-.lang-current,
-.lang-grid li,
-.button,
-.recent-card {
+  .lang-current,
+  .lang-grid li,
+  .button,
+  .recent-card {
     min-height: 44px;
   } /* comfortable touch targets */
-.tl-line {
+  .tl-line {
     cursor: default;
   }
 }
@@ -221,9 +221,9 @@
     align-items: flex-start;
   }
   input,
-select,
-textarea,
-.composer-input input {
+  select,
+  textarea,
+  .composer-input input {
     font-size: 16px;
   }
   .icon-button {
@@ -233,8 +233,8 @@ textarea,
 }
 @media (prefers-reduced-motion: reduce) {
   *,
-*::before,
-*::after {
+  *::before,
+  *::after {
     animation: none !important;
     scroll-behavior: auto !important;
   }

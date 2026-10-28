@@ -35,7 +35,7 @@ body::before {
 }
 @media (prefers-reduced-motion: reduce) {
   body::before,
-.brand-mark {
+  .brand-mark {
     animation: none !important;
   }
 }
@@ -57,7 +57,7 @@ body::before {
 }
 @keyframes shimmer {
   0%,
-100% {
+  100% {
     background-position: 0% 50%;
   }
   50% {
