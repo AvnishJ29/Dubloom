@@ -3,7 +3,6 @@
 Run from the project root: python -m backend.speakers.setup_local_models
 """
 
-from pathlib import Path
 import tarfile
 from urllib.request import urlretrieve
 from backend.config import settings

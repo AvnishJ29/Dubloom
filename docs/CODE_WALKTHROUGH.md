@@ -205,7 +205,7 @@ For edits, show:
 - [versions.py](../backend/jobs/versions.py): archive output and remember line wording.
 - [frontend/src/lib/history.js](../frontend/src/lib/history.js): show owner edits; maintenance refreshes update their associated entry.
 
-Existing maintenance-baseline archives can be hidden from the UI while remaining on disk. This is a special case; do not say that old files were deleted.
+Every archived render stays on disk in `versions/<n>/`; the sidebar only decides which of them to list. Do not say that old files were deleted.
 
 ## 7. Validation and closing demo
 

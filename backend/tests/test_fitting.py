@@ -1,6 +1,5 @@
 """Lines are rewritten until they fit their slot within 0.9x-1.1x, and placed exactly on the slot."""
 
-import shutil
 import subprocess
 import unittest
 from pathlib import Path

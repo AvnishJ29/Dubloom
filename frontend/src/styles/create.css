@@ -83,29 +83,6 @@
 .composer-input input::placeholder {
   color: var(--muted);
 }
-.composer-lang {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 6px 0 14px;
-  border: 1px solid var(--line-2);
-  border-radius: 999px;
-  background: var(--panel-2);
-  font-size: 14px;
-  color: var(--muted);
-}
-.composer-lang.grow {
-  flex: 1;
-}
-.composer-lang select {
-  border: 0;
-  background: var(--panel-2);
-  font-weight: 600;
-  color: var(--ink);
-  padding: 10px 8px;
-  outline: none;
-  border-radius: 999px;
-}
 .composer-file {
   display: flex;
   flex-direction: column;

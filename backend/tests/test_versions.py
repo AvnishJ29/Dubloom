@@ -182,27 +182,6 @@ class MergeTest(unittest.TestCase):
             self.assertNotIn("S0b", turns["profiles"])
 
 
-class HiddenBaselineTest(unittest.TestCase):
-    def test_one_time_reset_keeps_files_and_future_history_visible(self):
-        from backend.jobs.versions import hide_history_baseline
-
-        with TemporaryDirectory() as temp:
-            root = Path(temp)
-            (root / 'dubbed_video.mp4').write_bytes(b'old')
-            job = {'status': 'completed', 'segments': []}
-            versions = hide_history_baseline(archive(job, root, 'Timing refresh'), root)
-            self.assertTrue(versions[0]['hidden_from_history'])
-            self.assertEqual((root / 'versions/1/dubbed_video.mp4').read_bytes(), b'old')
-            self.assertTrue(
-                json.loads((root / 'versions/1/version.json').read_text())['hidden_from_history']
-            )
-            (root / 'dubbed_video.mp4').write_bytes(b'new')
-            job['versions'] = versions
-            versions = archive(job, root, 'Changed speaker voice')
-            self.assertTrue(versions[0]['hidden_from_history'])
-            self.assertFalse(versions[1].get('hidden_from_history', False))
-
-
 class RerenderReasonTest(unittest.TestCase):
     def test_an_empty_re_render_says_what_it_did(self):
         empty = SimpleNamespace(

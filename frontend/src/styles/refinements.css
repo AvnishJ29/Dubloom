@@ -34,9 +34,6 @@
     top: 7px;
     height: 16px;
   }
-  .chip {
-    max-width: 100%;
-  }
   .stage video {
     aspect-ratio: auto;
     max-height: 70vh;
@@ -44,42 +41,18 @@
 }
 @media (hover: none) and (pointer: coarse) {
   .mode-pill,
-  .lang-current,
-  .lang-grid li,
-  .button,
-  .recent-card {
+.lang-current,
+.lang-grid li,
+.button,
+.recent-card {
     min-height: 44px;
   } /* comfortable touch targets */
-  .tl-line {
+.tl-line {
     cursor: default;
   }
 }
 
 /* streaming option and per-line progress states */
-.stream-toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: var(--bg-2);
-  font-size: 13px;
-  color: var(--ink-2);
-  cursor: pointer;
-}
-.stream-toggle input {
-  margin-top: 3px;
-  accent-color: var(--brand);
-}
-.stream-toggle em {
-  font-style: normal;
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: var(--brand-soft);
-  color: var(--brand);
-  margin-left: 2px;
-}
 .edited-badge.state.heard {
   background: var(--bg-2);
   color: var(--muted);
@@ -97,11 +70,6 @@
   color: var(--ok);
   border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent);
 }
-.edited-badge.enhanced.quiet {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--line);
-}
 
 /* the quality check card */
 .quality h3 {
@@ -111,47 +79,8 @@
   font-size: 0.95rem;
   margin: 0 0 10px;
 }
-.quality.verdict-ok h3 i {
-  color: var(--ok);
-}
-.quality.verdict-check h3 i {
-  color: var(--warn);
-}
-.quality.verdict-fix h3 i {
-  color: var(--danger);
-}
-.quality-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.quality-list li {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  font-size: 13px;
-  color: var(--ink-2);
-  line-height: 1.4;
-}
-.quality-list li i {
-  margin-top: 2px;
-  flex: none;
-}
-.quality-list li.ok i {
-  color: var(--ok);
-}
-.quality-list li.check i {
-  color: var(--warn);
-}
-.quality-list li.fix i {
-  color: var(--danger);
-}
 
 /* ---------- Consistency pass: one scale for chips, badges and tags ---------- */
-.chip,
 .edited-badge,
 .tag {
   font-size: 12px;
@@ -166,7 +95,6 @@
   letter-spacing: 0;
   white-space: nowrap;
 }
-.chip i,
 .edited-badge i,
 .tag i {
   font-size: 12px;
@@ -293,9 +221,9 @@
     align-items: flex-start;
   }
   input,
-  select,
-  textarea,
-  .composer-input input {
+select,
+textarea,
+.composer-input input {
     font-size: 16px;
   }
   .icon-button {
@@ -305,8 +233,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   *,
-  *::before,
-  *::after {
+*::before,
+*::after {
     animation: none !important;
     scroll-behavior: auto !important;
   }
@@ -335,10 +263,6 @@ body::-webkit-scrollbar,
 }
 .recent {
   order: 4;
-}
-@media (max-width: 1120px) {
-}
-@media (max-width: 700px) {
 }
 
 .mode-pill strong i {

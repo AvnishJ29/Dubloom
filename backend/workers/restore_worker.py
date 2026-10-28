@@ -117,7 +117,7 @@ def restore_file(restorer, source, output, first, bbox, track, args):
                 _, _, restored = restorer.enhance(
                     crop, has_aligned=False, only_center_face=True, paste_back=True
                 )
-            except Exception as exc:  # noqa: BLE001  (no face found in the crop: keep the frame)
+            except Exception:  # noqa: BLE001  (no face found in the crop: keep the frame)
                 restored = None
             if restored is not None and restored.shape == crop.shape:
                 mx1, my1, mx2, my2 = lower_face(bbox[index], width, height)

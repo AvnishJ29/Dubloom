@@ -4,7 +4,6 @@ the user can listen and pick before anything is re-rendered. The chosen take rep
 
 from __future__ import annotations
 
-import json
 import shutil
 import subprocess
 from datetime import datetime, timezone

@@ -1,6 +1,5 @@
 """Regressions from the 27 Oct review: each test fails on the code before the fix."""
 
-import io
 import json
 import unittest
 from pathlib import Path

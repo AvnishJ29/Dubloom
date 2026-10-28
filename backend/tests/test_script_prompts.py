@@ -144,7 +144,7 @@ class EarlyProfileTest(unittest.TestCase):
             self.assertEqual(script_supervisor.profile_content([], {}, "", "en"), {})
 
 
-class ContentRuleTest(unittest.TestCase):
+class SpokenFormsRuleTest(unittest.TestCase):
     def test_lectures_get_the_maths_as_speech_rule_and_everyone_gets_spoken_forms(self):
         lecture = script_supervisor.content_rule(
             {"genre": "lecture", "label": "Linear algebra lecture", "register": "formal"}, "Tamil"

@@ -12,6 +12,7 @@
 
 import hashlib
 import json
+import logging
 import threading
 import time
 import math
@@ -32,6 +33,8 @@ from backend.speakers.speaker_faces import (
     loudness_envelope,
 )
 from backend.media.video_input import run
+
+logger = logging.getLogger(__name__)
 
 FPS = 25
 

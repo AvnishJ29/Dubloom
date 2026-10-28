@@ -1,6 +1,5 @@
 """The finisher restores only the spans that need it and pastes cached spans into one final encode."""
 
-import json
 import subprocess
 import unittest
 import wave
@@ -11,7 +10,6 @@ import cv2
 import numpy as np
 
 from backend.rendering import finish
-from backend.config import settings
 
 
 def write_clip(path: Path, frames: list[np.ndarray]):

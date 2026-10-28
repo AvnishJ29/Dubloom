@@ -42,7 +42,7 @@ from backend.rendering.lip_sync import (
 from backend.providers import openrouter
 from backend.voices.library import speaking_rate
 from backend.speech.fitting import DEFAULT_SPEAKING_RATE, SPEAKING_RATE, fit_lines, prefit_lines
-from backend.media.timeline import HARD_MIN_SPEED, dubbed_slots, placement_notes
+from backend.media.timeline import dubbed_slots, placement_notes
 from backend.speech.llm_translation import translate_lines
 from backend.speech.openrouter_tts import OPENROUTER_LANGUAGES
 from backend.speech.styles import TONE_TO_STYLE, normalise_style
@@ -60,7 +60,6 @@ from backend.speech.script_supervisor import check_transcripts, post_edit, profi
 from backend.speakers.speaker_review import review_speakers
 from backend.media.video_input import (
     SourceError,
-    run,
     cut_audio,
     download_video,
     extract_audio,
@@ -1634,28 +1633,6 @@ def process_job(job_id: str, resume: bool = False, control: JobControl | None = 
             source_language,
         )
 
-        def fit_note(piece, ratio):
-            who = f"{piece.speaker.replace('_', ' ').title()} at {piece.start:.1f}s"
-            if piece.edited:
-                return f"Your edit of {who} plays at {ratio:.2f}x; {'shorten' if ratio > 1 else 'lengthen'} it for natural pacing"
-            if ratio < settings.fit_min_speed:
-                pause = max(0.0, (piece.end - piece.start) * (1 - ratio / HARD_MIN_SPEED))
-                return f"{who} is a short line: spoken at a natural pace" + (
-                    f", ending {pause:.1f}s before the original" if pause >= 0.05 else ""
-                )
-            return f"{who} needed {ratio:.2f}x to fit its slot"
-
-        if settings.timing_mode == 'exact':
-
-            def fit_note(
-                piece, ratio
-            ):  # noqa: F811  (lines always fill their slot; only the pace is worth a note)
-                who = f"{piece.speaker.replace('_', ' ').title()} at {piece.start:.1f}s"
-                if ratio > settings.pace_max:
-                    return f"{who} is long for its slot: played at {settings.pace_max:.2f}x and allowed to run into the pause after it"
-                return f"{who} is short for its slot: played at {settings.pace_min:.2f}x and ends a little early"
-
-        fit_notes = [fit_note(piece, ratio) for piece, ratio in fit.outside]
         store.save(
             job_id,
             tts_engine_used=tts_used,

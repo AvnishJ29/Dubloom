@@ -86,20 +86,6 @@ def describe_revoice(job: dict, request) -> str:
     )
 
 
-def hide_history_baseline(versions: list[dict], directory: Path) -> list[dict]:
-    """One-time UI reset; all archived media remains retrievable on the backend."""
-    hidden = []
-    for version in versions:
-        entry = {**version, "hidden_from_history": True}
-        metadata = directory / "versions" / str(version["number"]) / "version.json"
-        if metadata.is_file():
-            record = json.loads(metadata.read_text(encoding="utf-8"))
-            record["hidden_from_history"] = True
-            metadata.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-        hidden.append(entry)
-    return hidden
-
-
 def remember(segment: dict, which: str):
     """Before a line's words change, keep the current ones: who wrote them and when they were replaced."""
     previous = segment.get(which) or ""

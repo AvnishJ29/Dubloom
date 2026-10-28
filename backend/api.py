@@ -25,11 +25,10 @@ from backend.providers.bodhan_api import provider_status
 from backend.config import ROOT, settings
 from backend.providers import openrouter
 from backend.speech.script_supervisor import rewrite_lines
-from backend.jobs.versions import archive, describe_revoice, hide_history_baseline, remember
+from backend.jobs.versions import archive, describe_revoice, remember
 from backend.media.shorts import make_short
 from backend.jobs.takes import choose_take, generate_take
 from backend.rendering.lip_models import LIP_SYNC_MODELS, available_models
-from backend.media.quality import assess
 from backend.models import ACTIVE_STATUSES, LANGUAGES, TERMINAL_STATUSES, VOICES
 from backend.jobs.pipeline import cancel_job, is_running, resume_lip_sync, run_job, store, utcnow
 from backend.media.separation import separation_available
@@ -180,9 +179,6 @@ class ScriptChange(BaseModel):
 
 
 class Revoice(BaseModel):
-    reset_history_baseline: bool = (
-        False  # one-time refresh: retain old files but hide old UI history
-    )
     speaker_voices: dict[str, str] = Field(default_factory=dict)
     speaker_styles: dict[str, str] = Field(default_factory=dict)
     delivery_style: str | None = None
@@ -281,21 +277,6 @@ def existing_job(job_id: UUID) -> dict:
     if not data:
         raise HTTPException(404, "Job not found")
     data = with_line_states(data)
-    if data.get("status") == "completed":
-        try:
-            data["quality"] = assess(data, job_directory(job_id))
-        except Exception as exc:  # noqa: BLE001  (a report, never a reason to fail the page)
-            data["quality"] = {
-                "verdict": "check",
-                "items": [
-                    {
-                        "area": "report",
-                        "label": "Quality check",
-                        "status": "check",
-                        "note": str(exc)[:120],
-                    }
-                ],
-            }
     return data
 
 
@@ -728,8 +709,6 @@ def revoice(job_id: UUID, request: Revoice):
     if request.tts_engine:
         changes["tts_engine"] = request.tts_engine
     changes["versions"] = archive(job, directory, describe_revoice(job, request))
-    if request.reset_history_baseline:
-        changes["versions"] = hide_history_baseline(changes["versions"], directory)
     changes["pending_takes"] = 0
     store.save(identifier, **changes)
     start_job(identifier, resume=True)

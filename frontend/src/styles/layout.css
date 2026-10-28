@@ -61,7 +61,7 @@
     padding: 0 12px;
   }
   .status-pill.ok,
-  .status-pill.warn {
+.status-pill.warn {
     display: none;
   }
   main {
@@ -71,15 +71,8 @@
   .composer-row {
     flex-direction: column;
   }
-  .composer-lang {
-    justify-content: space-between;
-    padding: 4px 6px 4px 14px;
-  }
-  .composer-lang select {
-    flex: 1;
-  }
   .settings-grid,
-  .stats {
+.stats {
     grid-template-columns: 1fr 1fr;
   }
   .job-actions .button {

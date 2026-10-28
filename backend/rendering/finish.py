@@ -20,7 +20,6 @@ import numpy as np
 
 from backend.config import ROOT, settings
 from backend.rendering.mouth_enhance import MIN_FACE_WIDTH, enhance_lips
-from backend.media.video_input import run
 
 logger = logging.getLogger(__name__)
 GFPGAN_MIN = 60  # the GFPGAN worker's floor (restore_worker.py --min-face)
