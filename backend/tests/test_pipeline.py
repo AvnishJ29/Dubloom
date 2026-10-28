@@ -140,6 +140,10 @@ class PipelineOrderTest(unittest.TestCase):
                 },
                 speakers: {
                     "speaker_profiles": patch.object(speakers, "speaker_profiles", return_value={}),
+                    "pitch_reader": patch.object(speakers, "pitch_reader"),
+                    "speaker_face_evidence": patch.object(
+                        speakers, "speaker_face_evidence", return_value={}
+                    ),
                     "classify_genders": patch.object(speakers, "classify_genders", return_value={}),
                     "speaker_turns": patch.object(speakers, "speaker_turns", side_effect=diarize),
                 },
@@ -157,8 +161,14 @@ class PipelineOrderTest(unittest.TestCase):
                         mix, "assemble_timeline", side_effect=fake_mix
                     )
                 },
+                background: {
+                    "prepare_faces_in_background": patch.object(
+                        background, "prepare_faces_in_background"
+                    )
+                },
                 render: {
                     "write_preview": patch.object(render, "write_preview"),
+                    "write_review_cut": patch.object(render, "write_review_cut"),
                     "synchronize": patch.object(render, "synchronize", side_effect=lip),
                 },
                 pipeline: {

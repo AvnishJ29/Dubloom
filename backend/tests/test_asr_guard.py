@@ -31,12 +31,17 @@ class DegenerateTest(unittest.TestCase):
             audio = Path(temp) / "a.wav"
             audio.write_bytes(b"RIFF")
             api = FakeApi(["ୄ" * 40, "Saudi Arabia is stuck in a loop"])
-            self.assertEqual(
-                asr.transcribe(api, audio, "en", None, {}), "Saudi Arabia is stuck in a loop"
-            )
+            with self.assertLogs(asr.logger, "WARNING") as logs:
+                self.assertEqual(
+                    asr.transcribe(api, audio, "en", None, {}), "Saudi Arabia is stuck in a loop"
+                )
             self.assertEqual(api.calls, 2)
+            self.assertIn("retrying", logs.output[0])
             api = FakeApi(["ୄ" * 40] * 3)
-            with self.assertRaises(asr.DegenerateTranscript):
+            with (
+                self.assertRaises(asr.DegenerateTranscript),
+                self.assertLogs(asr.logger, "WARNING"),
+            ):
                 asr.transcribe(api, audio, "en", None, {})
             self.assertEqual(api.calls, 3)
 

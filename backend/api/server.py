@@ -3,6 +3,8 @@ frontend. The SPA catch-all is registered last so it never shadows an API route.
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -14,21 +16,7 @@ from backend.jobs.control import is_running
 from backend.jobs.store import store
 from backend.models import ACTIVE_STATUSES
 
-app = FastAPI(title="Dubloom API", version="2.0.0")
-frontend_dist = ROOT / "frontend" / "dist"
-if (frontend_dist / "assets").is_dir():
-    app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE"],
-    allow_headers=["*"],
-)
-app.middleware("http")(system.require_password)
 
-
-@app.on_event("startup")
 def recover_interrupted_jobs():
     """Mark orphaned active jobs as interrupted so the owner can resume them."""
     for job in store.list():
@@ -41,6 +29,27 @@ def recover_interrupted_jobs():
                 retry_at=None,
                 error="The studio stopped while this job was running. Resume it to continue.",
             )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """At startup, flag the jobs a previous run of the studio left unfinished."""
+    recover_interrupted_jobs()
+    yield
+
+
+app = FastAPI(title="Dubloom API", version="2.0.0", lifespan=lifespan)
+frontend_dist = ROOT / "frontend" / "dist"
+if (frontend_dist / "assets").is_dir():
+    app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["*"],
+)
+app.middleware("http")(system.require_password)
 
 
 for module in (system, jobs, editing, shorts, media):

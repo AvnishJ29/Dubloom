@@ -25,7 +25,9 @@ def write_tone(path: Path, amplitude: float, seconds: float = 1.5, rate: int = 2
 def stats(path: Path):
     with wave.open(str(path), "rb") as r:
         y = np.frombuffer(r.readframes(r.getnframes()), dtype="<i2").astype(np.float32) / 32768
-    return 20 * np.log10(np.abs(y).max()), 20 * np.log10(np.sqrt(np.mean(y**2)))
+    floor = 1e-10  # digital silence reads as -200 dB instead of -inf
+    peak, rms = max(np.abs(y).max(), floor), max(np.sqrt(np.mean(y**2)), floor)
+    return 20 * np.log10(peak), 20 * np.log10(rms)
 
 
 class LevelClipTest(unittest.TestCase):

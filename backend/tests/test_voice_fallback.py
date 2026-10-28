@@ -34,9 +34,11 @@ class VoiceFallbackTest(unittest.TestCase):
                 language="hi",
                 speaker_voices={"SPEAKER_00": "Amit", "SPEAKER_01": "Kavya"},
             )
-            self.assertEqual(
-                state.render("SPEAKER_00", "नमस्ते", Path(temp) / "a.wav", None), "gemini"
-            )
+            with self.assertLogs(voices.logger, "WARNING") as logs:
+                self.assertEqual(
+                    state.render("SPEAKER_00", "नमस्ते", Path(temp) / "a.wav", None), "gemini"
+                )
+            self.assertIn("OpenRouter voices take over", logs.output[0])
             self.assertEqual(
                 state.render("SPEAKER_01", "नमस्ते", Path(temp) / "b.wav", None), "gemini"
             )
