@@ -33,7 +33,7 @@ class CreateJob(BaseModel):
     tts_engine: str | None = None  # auto (studio voices) or clone (original speakers' voices)
     # your voices in speaking order (advanced casting); blank = automatic matching
     voices: list[str] | None = None
-    # staged (default) or streaming: each line translated and shown as soon as it is heard
+    # streaming (default): each line translated and shown as soon as it is heard; or staged
     pipeline_mode: str | None = None
     clip_start: float | None = Field(default=None, ge=0)  # dub only this part of the video (s)
     clip_end: float | None = Field(default=None, gt=0)
