@@ -2,44 +2,46 @@ import unittest
 from dataclasses import replace
 from unittest.mock import patch
 from fastapi import HTTPException
-from backend import api
+from backend.api import helpers
 
 
 class ReadinessTest(unittest.TestCase):
     def test_voice_only_needs_no_lip_checkpoint(self):
         with (
             patch.object(
-                api,
+                helpers,
                 'settings',
                 replace(
-                    api.settings,
+                    helpers.settings,
                     bodhan_asr_key='test',
                     bodhan_translate_key='test',
                     bodhan_tts_key='test',
                 ),
             ),
-            patch.object(api.shutil, 'which', return_value='/usr/bin/ffmpeg'),
+            patch.object(helpers.shutil, 'which', return_value='/usr/bin/ffmpeg'),
             patch.object(
-                api, 'available_models', side_effect=AssertionError('must not inspect lip models')
+                helpers,
+                'available_models',
+                side_effect=AssertionError('must not inspect lip models'),
             ),
         ):
-            api.check_ready('none')
+            helpers.check_ready('none')
 
     def test_selected_model_is_checked(self):
         with (
             patch.object(
-                api,
+                helpers,
                 'settings',
                 replace(
-                    api.settings,
+                    helpers.settings,
                     bodhan_asr_key='test',
                     bodhan_translate_key='test',
                     bodhan_tts_key='test',
                 ),
             ),
-            patch.object(api.shutil, 'which', return_value='/usr/bin/ffmpeg'),
+            patch.object(helpers.shutil, 'which', return_value='/usr/bin/ffmpeg'),
             patch.object(
-                api,
+                helpers,
                 'available_models',
                 return_value=[
                     {'id': 'latentsync', 'available': True},
@@ -47,23 +49,23 @@ class ReadinessTest(unittest.TestCase):
                 ],
             ),
         ):
-            api.check_ready('latentsync')
+            helpers.check_ready('latentsync')
             with self.assertRaises(HTTPException):
-                api.check_ready('wav2lip')
+                helpers.check_ready('wav2lip')
 
     def test_voice_only_still_requires_ffmpeg(self):
         with (
             patch.object(
-                api,
+                helpers,
                 'settings',
                 replace(
-                    api.settings,
+                    helpers.settings,
                     bodhan_asr_key='test',
                     bodhan_translate_key='test',
                     bodhan_tts_key='test',
                 ),
             ),
-            patch.object(api.shutil, 'which', return_value=None),
+            patch.object(helpers.shutil, 'which', return_value=None),
         ):
             with self.assertRaises(HTTPException):
-                api.check_ready('none')
+                helpers.check_ready('none')

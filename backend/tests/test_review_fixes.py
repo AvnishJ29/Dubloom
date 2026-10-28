@@ -13,7 +13,7 @@ JOB = "33333333-3333-4333-8333-333333333333"
 def studio(root: Path):
     """A finished one-line job on disk and a test client whose job runner does nothing."""
     from fastapi.testclient import TestClient
-    from backend import api
+    from backend.api import app, editing, helpers, jobs, system
     from backend.jobs import pipeline
 
     folder = root / JOB
@@ -49,11 +49,14 @@ def studio(root: Path):
         translation_script="codemix",
         background_mode="separate",
     )
-    return TestClient(api.app), [
-        patch.object(api, "settings", settings),
+    return TestClient(app), [
+        patch.object(system, "settings", settings),
+        patch.object(helpers, "settings", settings),
+        patch.object(jobs, "settings", settings),
         patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=root)),
-        patch.object(api, "start_job"),
-        patch.object(api, "check_ready"),
+        patch.object(jobs, "start_job"),
+        patch.object(editing, "start_job"),
+        patch.object(jobs, "check_ready"),
     ]
 
 
