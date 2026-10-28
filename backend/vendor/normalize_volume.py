@@ -1,4 +1,5 @@
-# Copied verbatim from /projects/data/ttsteam/avnish/tts_audio/normalize_volume.py (the normaliser behind audio_generations_peak_normalized, 2026-10-20).
+# Copied verbatim from the team's TTS audio tooling (normalize_volume.py, the normaliser behind its
+# peak-normalised audio generations), 2026-10-20.
 # Do not edit here; update from the source.
 #!/usr/bin/env python3
 """

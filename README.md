@@ -1,21 +1,41 @@
 # Dubloom
 
-A video-dubbing studio for 23 supported languages. Import a link or video, translate the dialogue, match voices to speakers, adjust the script, and export the dub with optional lip sync, audio and subtitles.
+An AI dubbing studio for Indian languages, built on India's sovereign speech models. Upload a video or paste a link, pick a language, and Dubloom transcribes the dialogue, translates it, voices every speaker with a matching studio voice, fits each line to the original timing, and redraws the speakers' lips to match the new words. The result is an editable project: change a line, a voice or a delivery style, and only what changed is rendered again.
 
-Built with **FastAPI + Vue 3**. Supports source video up to 4K when configured; lip sync applies only to visible speaking faces. Audio/text are processed by the configured AI providers.
+Built with **FastAPI + Vue 3**. Speech runs on Bodhan **Indic-Transcribe, Indic-Translate and Indic-Speak**; Gemini (through OpenRouter) edits the script and reviews who is speaking; local GPU workers handle speakers, faces, audio separation and lip sync.
 
 ## Key features
 
-- Video links or file uploads, with an optional source clip range.
-- Speaker detection, matched studio voices, and supported voice cloning.
-- Editable transcripts and translations, AI rewrites, delivery controls and line takes.
-- Duration fitting, preserved background audio, and optional lip sync for visible speakers.
-- Video/audio/subtitle exports, short clips, resumable jobs and render-cache reuse.
-- Owner-change history, plus configurable studio sign-in and processing limits.
+- **Any of 23 languages to any other** (22 Indian languages plus English), from an upload or a video link, optionally only a part of the video.
+- **Live script:** each line is transcribed, translated and polished the moment it is heard, so the script fills in while the dub is made.
+- **Every speaker gets a voice:** DiariZen finds who speaks when, Gemini re-listens to check it, and voices are cast by gender, voice pitch and genre. Faces on screen correct the casting.
+- **A script editor that keeps the meaning:** Gemini adapts each translation to the content's genre and register (a lecture, a film, the news), keeps English technical terms as people say them, and never pads lines.
+- **Lines that fit their time:** a line that runs long or short is rewritten and re-voiced to land within 0.9-1.1x of the original pace. Lines that still don't fit are flagged under "Worth a look".
+- **Lip sync only where it shows:** LatentSync 1.6 redraws only the visible, speaking faces (InsightFace and active-speaker detection; frames with hands over the mouth are skipped), then GFPGAN and Real-ESRGAN restore the mouths. Works up to 4K. Wav2Lip and a voice-only mode run without a GPU.
+- **The original soundtrack stays:** music and effects are separated from the voices (Mel-Band RoFormer or Demucs), or the original mix is ducked under the dub.
+- **Edit like a studio:**
+  - edit any line yourself, or ask the AI and compare its suggestion word by word with the original;
+  - try alternate takes and per-line delivery styles;
+  - every change is kept as a version you can play back, and every line keeps its own history.
+- **Export:** full-quality video, the dubbed audio, SRT/VTT subtitles in either language, and vertical shorts that follow the speaker's face.
+- **Built to keep going:** jobs resume where they stopped, model rate limits are waited out, and paid model results are cached so a re-render costs only what changed.
 
-The pipeline is **source → audio/speakers → transcribe → translate → voice → fit/mix → lip sync → export**.
+## How it works
 
-Speech services use Bodhan **Indic-Transcribe, Indic-Translate and Indic-Speak**. OpenRouter supports script/review work, cloning and configured fallbacks. Local workers run speaker analysis, audio separation, face analysis and LatentSync/Wav2Lip. See the [pipeline guide](docs/PIPELINE.md) for the model and code behind each phase.
+```mermaid
+flowchart LR
+    Source[Upload or link] --> Speakers[Who speaks when]
+    Speakers --> Script[Transcribe, translate, polish<br/>line by line]
+    Script --> Voice[Cast voices and<br/>fit each line to its time]
+    Voice --> Mix[Mix over the original<br/>music and effects]
+    Mix --> Lips[Lip sync visible<br/>speaking faces]
+    Lips --> Export[Video, audio,<br/>subtitles, shorts]
+    Source -. in parallel .-> Faces[Faces and background<br/>separation]
+    Faces -.-> Voice
+    Faces -.-> Lips
+```
+
+`process_job()` in [`backend/jobs/pipeline.py`](backend/jobs/pipeline.py) runs these steps in order, one module per stage in [`backend/jobs/stages/`](backend/jobs/stages/). The [pipeline guide](docs/PIPELINE.md) lists the model and code behind every stage.
 
 ## Requirements
 
@@ -52,6 +72,7 @@ All settings are described in [`.env.example`](.env.example). Keep actual creden
 | `MAX_VIDEO_HEIGHT` | Source resolution limit; example config is 720, set 2160 for up to 4K |
 | `LIP_SYNC_MODEL` | Blank/default selection, `latentsync`, `wav2lip`, `wav2lip_gan` or `none` |
 | `YTDLP_NODE` | Node 22+ executable when the Node on `PATH` is older |
+| `YTDLP_COOKIES` | Optional `cookies.txt` from a signed-in browser, for sites (YouTube) that ask servers to sign in |
 | `JOBS_DIR` | Persistent project/media storage; defaults to `jobs/` |
 
 Timing, background audio, concurrency, model paths and upload limits are also configurable in that file.
@@ -60,7 +81,7 @@ Timing, background audio, concurrency, model paths and upload limits are also co
 
 1. Paste a video link or upload a file. Choose the language, lip-sync/voice-only mode and optional clip range.
 2. Review the result. Edit script lines, voices, delivery or takes, then re-render.
-3. Download video, audio or subtitles, or create a short. History records owner changes; studio maintenance renders update the associated entry.
+3. Download video, audio or subtitles, or create a short. The sidebar lists every version you made; earlier versions stay playable.
 
 The pipeline reuses unchanged speech, model analysis and rendered spans. Processing time depends on video length, faces, hardware and provider limits.
 
@@ -118,6 +139,13 @@ npm run build
 Backend tests use FFmpeg/ffprobe; model/provider interactions are generally mocked. The full setup is needed for real end-to-end dubbing. API documentation is available at **http://localhost:8001/docs**. CI checks formatting, client tests, Python syntax and the frontend build.
 
 See the [video/code walkthrough guide](docs/CODE_WALKTHROUGH.md), [development conventions](docs/DEVELOPMENT.md), [full pipeline](docs/PIPELINE.md) and [cluster deployment script](scripts/deploy_to_cluster.sh).
+
+## Known limitations
+
+- **YouTube may ask a server to sign in** (its bot check). Set `YTDLP_COOKIES`, or download the video yourself and upload it.
+- **Lip sync needs a visible, mostly frontal speaking face.** Lines spoken off screen, in profile or behind a hand keep the original picture, and the job page says how many lines were lip-synced.
+- **Speed depends on the hardware and the providers:** lip sync needs a CUDA GPU to be fast, and Bodhan rate limits can pause a job (it resumes on its own).
+- **Videos are limited to 30 minutes by default** (`MAX_VIDEO_MINUTES`); a longer video can be dubbed one part at a time.
 
 ## License
 
