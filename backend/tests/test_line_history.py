@@ -11,7 +11,7 @@ from unittest.mock import patch
 class LineHistoryTest(unittest.TestCase):
     def test_edits_by_the_ai_and_by_you_stack_up_and_nothing_is_lost(self):
         from fastapi.testclient import TestClient
-        from backend import api
+        from backend.api import app, editing, helpers, system
         from backend.jobs import store as jobstore
 
         with TemporaryDirectory() as temp:
@@ -37,12 +37,14 @@ class LineHistoryTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            settings = SimpleNamespace(jobs_dir=root, studio_password="")
             with (
-                patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
+                patch.object(system, "settings", settings),
+                patch.object(helpers, "settings", settings),
                 patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
-                patch.object(api, "start_job"),
+                patch.object(editing, "start_job"),
             ):
-                client = TestClient(api.app)
+                client = TestClient(app)
                 response = client.post(
                     f"/api/jobs/{job_id}/script",
                     json={"lines": [{"index": 0, "translation": "नमस्ते दोस्तों", "via": "ai"}]},

@@ -9,7 +9,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
-from backend import api
+from backend.api import app, helpers, system
 from backend.media.media_validation import validate_video
 
 
@@ -24,8 +24,12 @@ class MediaDeliveryTest(unittest.TestCase):
             self.encode(output, 'sine=frequency=440:sample_rate=48000')
             report = validate_video(output, 1)
             self.assertGreater(report['audio_peak_db'], -65)
-            with patch.object(api, 'settings', SimpleNamespace(jobs_dir=root)):
-                client = TestClient(api.app)
+            settings = SimpleNamespace(jobs_dir=root)
+            with (
+                patch.object(helpers, 'settings', settings),
+                patch.object(system, 'settings', settings),
+            ):
+                client = TestClient(app)
                 response = client.get(f'/api/jobs/{job_id}/video?download=true')
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.headers['content-type'], 'video/mp4')

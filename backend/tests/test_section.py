@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from fastapi import HTTPException
 
-from backend.api import validate_clip
+from backend.api.helpers import validate_clip
 from backend.jobs.stages.source import cut_section
 
 

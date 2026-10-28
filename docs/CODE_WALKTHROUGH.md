@@ -73,7 +73,7 @@ Dubloom/
 ├── main.py                    # Uvicorn entry point
 ├── run.sh                     # Studio launcher
 ├── backend/
-│   ├── api.py                 # Routes and request validation
+│   ├── api/                   # Routes (one router per concern) and request validation
 │   ├── config.py              # Environment settings
 │   ├── models.py              # Shared Segment records
 │   ├── jobs/                  # Pipeline, persistence, versions and takes
@@ -111,7 +111,7 @@ Open these files in order:
 2. [frontend/src/App.vue](../frontend/src/App.vue): configuration, project list, selected job and subscriptions.
 3. [CreatePanel.vue](../frontend/src/components/CreatePanel.vue): `submit()` builds the creation options.
 4. [lib/api.js](../frontend/src/lib/api.js): `post()` sends JSON; `upload()` sends multipart data with progress.
-5. [backend/api.py](../backend/api.py): `create_job()` or `create_upload_job()` validates inputs and calls `start_job()`.
+5. [backend/api/jobs.py](../backend/api/jobs.py): `create_job()` or `create_upload_job()` validates inputs and calls `start_job()`.
 6. [backend/jobs/pipeline.py](../backend/jobs/pipeline.py): `run_job()` manages attempts; `process_job()` runs the stages.
 
 > “A URL becomes a POST to /api/jobs; an upload goes to /api/jobs/upload. The API validates the options, saves a queued job and submits it to an executor. It returns a job ID instead of holding the HTTP request open for the entire render. The browser uses that ID to display progress and results.”
@@ -193,7 +193,7 @@ Open `JobStore`, `JobControl`, `run_segment_stage()` and `heavy_stage()` in [pip
 >
 > “Stages reuse saved results when their inputs still match. Unchanged line audio and lip-sync spans can be reused, so an edit need not repeat the entire pipeline.”
 
-For progress, open `job_events()` in [api.py](../backend/api.py) and `subscribe()` in [frontend/src/lib/api.js](../frontend/src/lib/api.js).
+For progress, open `job_events()` in [api/jobs.py](../backend/api/jobs.py) and `subscribe()` in [frontend/src/lib/api.js](../frontend/src/lib/api.js).
 
 > “The UI receives server-sent events and also polls as a fallback for buffering proxies. It closes subscriptions when a job finishes or the user switches projects.”
 

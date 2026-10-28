@@ -92,7 +92,7 @@ class RenameTest(unittest.TestCase):
     def test_rename_changes_only_the_title(self):
         from fastapi.testclient import TestClient
         from unittest.mock import patch
-        from backend import api
+        from backend.api import app, helpers, system
 
         with TemporaryDirectory() as temp:
             root = Path(temp)
@@ -104,11 +104,13 @@ class RenameTest(unittest.TestCase):
             )
             from backend.jobs import store as jobstore
 
+            settings = SimpleNamespace(jobs_dir=root, studio_password="")
             with (
-                patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
+                patch.object(system, "settings", settings),
+                patch.object(helpers, "settings", settings),
                 patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
             ):
-                client = TestClient(api.app)
+                client = TestClient(app)
                 response = client.patch(f"/api/jobs/{job_id}", json={"title": "  New name "})
                 self.assertEqual(response.status_code, 200, response.text)
                 self.assertEqual(
@@ -123,7 +125,7 @@ class MergeTest(unittest.TestCase):
     def test_merge_relabels_lines_and_cached_turns(self):
         from fastapi.testclient import TestClient
         from unittest.mock import patch
-        from backend import api
+        from backend.api import app, editing, helpers, system
         from backend.jobs import store as jobstore
 
         with TemporaryDirectory() as temp:
@@ -163,12 +165,14 @@ class MergeTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            settings = SimpleNamespace(jobs_dir=root, studio_password="")
             with (
-                patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
+                patch.object(system, "settings", settings),
+                patch.object(helpers, "settings", settings),
                 patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
-                patch.object(api, "start_job", lambda *a, **k: None),
+                patch.object(editing, "start_job", lambda *a, **k: None),
             ):
-                response = TestClient(api.app).post(
+                response = TestClient(app).post(
                     f"/api/jobs/{job_id}/speakers/S0b/merge", json={"into": "S0"}
                 )
                 self.assertEqual(response.status_code, 202, response.text)
