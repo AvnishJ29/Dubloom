@@ -1,0 +1,159 @@
+/* ---------- Atmosphere: a slow aurora behind everything, glass in front of it ---------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60vw 42vw at 88% -8%,
+      color-mix(in srgb, var(--brand) 9%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      52vw 36vw at -8% 104%,
+      color-mix(in srgb, var(--brand-2) 7%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(42vw 30vw at 52% 112%, rgba(91, 124, 255, 0.06), transparent 70%);
+  animation: aurora 26s ease-in-out infinite alternate;
+}
+:root[data-theme='dark'] body::before {
+  background:
+    radial-gradient(60vw 42vw at 88% -8%, rgba(255, 107, 138, 0.12), transparent 70%),
+    radial-gradient(52vw 36vw at -8% 104%, rgba(255, 163, 107, 0.08), transparent 70%),
+    radial-gradient(46vw 32vw at 55% 115%, rgba(91, 124, 255, 0.11), transparent 70%);
+}
+@keyframes aurora {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-2.5%, 1.5%, 0) scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  .brand-mark,
+  .hero h1 em.rotate {
+    animation: none !important;
+  }
+}
+:root[data-theme='dark'] .mode-pill {
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+}
+:root[data-theme='dark'] .panel,
+:root[data-theme='dark'] .composer,
+:root[data-theme='dark'] .recent-card,
+:root[data-theme='dark'] .speaker-card {
+  background: color-mix(in srgb, var(--panel) 76%, transparent);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+:root[data-theme='dark'] .library {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+/* the cycling word: every word occupies the same grid cell, so the slot is as wide as the widest word and nothing ever reflows */
+.rotator {
+  display: inline-grid;
+  vertical-align: baseline;
+  text-align: left;
+}
+.rotator em {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(0.45em);
+  filter: blur(4px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.5s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.rotator em.was {
+  opacity: 0;
+  transform: translateY(-0.45em);
+}
+.rotator em.on {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+@keyframes wordin {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+/* the scrubbable speaker timeline under the player */
+.timeline-strip {
+  position: relative;
+  height: 36px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+}
+:root[data-theme='dark'] .timeline-strip {
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+}
+.tl-line {
+  position: absolute;
+  top: 9px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--speaker, var(--brand));
+  opacity: 0.32;
+  transition: opacity 0.15s;
+}
+.tl-line.synced {
+  opacity: 0.92;
+  box-shadow: 0 2px 8px -3px var(--speaker, var(--brand));
+}
+.tl-line.active {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+.timeline-strip:hover .tl-line {
+  opacity: 0.5;
+}
+.timeline-strip:hover .tl-line.synced {
+  opacity: 1;
+}
+.tl-head {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ink);
+  opacity: 0.85;
+  pointer-events: none;
+  transition: left 0.12s linear;
+}
+.timeline-key {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}

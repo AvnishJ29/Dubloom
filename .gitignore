@@ -1,0 +1,74 @@
+# Secrets and local state
+.env
+.env.backup-*
+studio_settings.json
+/jobs/
+/logs/
+
+# Environments and build caches
+.venv/
+.venv-*/
+frontend/node_modules/
+__pycache__/
+*.pyc
+
+# Third-party code: cloned at pinned commits by scripts/setup_models.sh
+/third_party/
+
+# Model weights: downloaded by scripts/setup_models.sh, never committed
+/models/
+*.pth
+*.pt
+*.pth.tar
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.model
+*.h5
+
+# Unused Windows runtime from the original laptop build
+.runtime/
+
+# Wav2Lip working folders and generated media from earlier experiments
+Wav2Lip/temp/
+Wav2Lip/results/
+example_archive/**/*.mp4
+example_archive/**/*.wav
+example_archive/**/*.m4a
+example_archive/**/*.png
+example_archive/**/*.mkv
+example_archive/**/*.avi
+example_archive/**/*.mov
+example_archive/**/*.webm
+example_archive/**/*.mp3
+example_archive/**/*.jpg
+
+# Wav2Lip is a modified copy of Rudrabha/Wav2Lip; its upstream history stays local
+Wav2Lip/.git-upstream/
+hf-cache/
+scratch/
+uv-cache/
+
+# Generated frontend output (build with npm run build; served locally by FastAPI)
+frontend/dist/
+
+# Editor backups and local review/environment snapshots
+*.orig
+*.rej
+*.bak
+*~
+docs/REVIEW-*.md
+backend/requirements-local.txt
+
+# Additional downloaded restoration weights
+gfpgan/weights/
+
+# Tool caches and test output
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+frontend/coverage/
+frontend/.vite/

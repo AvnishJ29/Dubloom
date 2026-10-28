@@ -1,0 +1,311 @@
+/* ---------- Job header: title and actions on one line, details as quiet text ---------- */
+.job-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 24px;
+  align-items: start;
+}
+.job-title {
+  gap: 6px;
+}
+.job-title h1 {
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  line-height: 1.18;
+}
+.job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.job-meta > span + span::before {
+  content: '·';
+  margin: 0 9px;
+  color: var(--line-2);
+}
+.job-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+  margin-right: 6px;
+}
+.job-pair + span::before {
+  display: none;
+}
+.job-pair i {
+  font-size: 12px;
+}
+.job-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.job-sub > * + *::before {
+  content: '·';
+  margin: 0 8px;
+  color: var(--line-2);
+}
+.job-sub a {
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.job-sub a:hover {
+  color: var(--brand);
+}
+.job-actions {
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+@media (max-width: 1100px) {
+  .job-head {
+    grid-template-columns: 1fr;
+  }
+  .job-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- Worth a look: compact ---------- */
+.panel.notes {
+  padding: 14px 16px;
+}
+.notes h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.notes li {
+  font-size: 12.5px;
+  gap: 8px;
+  line-height: 1.45;
+}
+.notes-sub {
+  margin: 8px 0 6px;
+  font-size: 12.5px;
+}
+.notes .issue-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+.issue {
+  padding: 4px 8px;
+  font-size: 12px;
+  gap: 6px;
+}
+.issue i {
+  display: none;
+}
+
+/* ---------- Sidebar: what produced the latest render ---------- */
+.project-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-change i {
+  font-size: 10px;
+}
+
+/* ---------- Dub again: the chosen video as a card ---------- */
+.source-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+.source-thumb {
+  flex: none;
+  width: 92px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--stage);
+  display: grid;
+  place-items: center;
+  color: var(--stage-ink);
+}
+.source-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.source-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.source-copy small {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+.source-copy strong {
+  font-family: var(--display);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.source-copy em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--muted);
+}
+.source-card .link-button {
+  margin-left: auto;
+  flex: none;
+  font-size: 12.5px;
+}
+@media (max-width: 640px) {
+  .source-card {
+    flex-wrap: wrap;
+  }
+  .source-card .link-button {
+    margin-left: 0;
+  }
+}
+.source-card .link-button:hover {
+  color: var(--brand);
+}
+
+/* ---------- Sidebar: the selected dub's generations, newest first ---------- */
+.generations {
+  list-style: none;
+  margin: -2px 0 8px 22px;
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.generations button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1px 8px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+.generations button:hover {
+  background: var(--bg-2);
+}
+.generations button.on {
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+.generations strong {
+  font-family: var(--display);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.generations small {
+  grid-column: 1;
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.generations small.when {
+  grid-column: 2;
+  grid-row: 1;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  align-self: center;
+}
+.generations button.on small {
+  color: var(--ink-2);
+}
+
+.studio-copyright {
+  order: 99;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  text-align: center;
+}
+.studio-copyright small {
+  font-size: 12px;
+}
+
+/* Advanced controls share the language picker's popover and keyboard interactions. */
+.option-picker {
+  min-width: 0;
+  width: 100%;
+}
+.option-picker.open {
+  z-index: 3;
+}
+.option-picker .lang-current {
+  width: 100%;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+}
+.option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.option-picker .lang-pop {
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+.option-list {
+  grid-template-columns: 1fr;
+}
+.option-list li {
+  min-height: 44px;
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  line-height: 1.4;
+}
+.option-list li span {
+  overflow-wrap: anywhere;
+}
+.option-list li.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 560px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}

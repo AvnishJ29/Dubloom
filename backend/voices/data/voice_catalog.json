@@ -1,0 +1,185 @@
+{
+  "voices": {
+    "as": [
+      "Prastuti",
+      "Ankur"
+    ],
+    "bn": [
+      "Ishita",
+      "Sourav"
+    ],
+    "brx": [
+      "Gwrbw",
+      "Sansuma"
+    ],
+    "doi": [
+      "Preeti",
+      "Sham"
+    ],
+    "en": [
+      "Kavya",
+      "Amit",
+      "Suhani"
+    ],
+    "gu": [
+      "Dhara",
+      "Parth"
+    ],
+    "hi": [
+      "Kavya",
+      "Amit",
+      "Suhani"
+    ],
+    "kn": [
+      "Deepika",
+      "Adarsh"
+    ],
+    "kok": [
+      "Anjali",
+      "Sandeep"
+    ],
+    "ks": [
+      "Zoon",
+      "Ishfaq"
+    ],
+    "mai": [
+      "Vaidehi",
+      "Madhukar"
+    ],
+    "ml": [
+      "Lakshmi",
+      "Kiran"
+    ],
+    "mni": [
+      "Thoibi",
+      "Chaoba"
+    ],
+    "mr": [
+      "Anagha",
+      "Chinmay"
+    ],
+    "ne": [
+      "Srijana",
+      "Sagar"
+    ],
+    "or": [
+      "Itishree",
+      "Akash"
+    ],
+    "pa": [
+      "Kaur",
+      "Manpreet"
+    ],
+    "sa": [
+      "Bharati",
+      "Aryaman"
+    ],
+    "sat": [
+      "Phulmani",
+      "Sibu"
+    ],
+    "sd": [
+      "Moomal",
+      "Rano"
+    ],
+    "ta": [
+      "Anitha",
+      "Arun"
+    ],
+    "te": [
+      "Sravani",
+      "Vamsi"
+    ],
+    "ur": [
+      "Saba",
+      "Zaid"
+    ]
+  },
+  "priority_groups": [
+    [
+      "hi",
+      "mr",
+      "ne",
+      "mai",
+      "doi",
+      "kok",
+      "sa",
+      "sd",
+      "brx"
+    ],
+    [
+      "ta",
+      "te",
+      "kn",
+      "ml"
+    ],
+    [
+      "hi",
+      "mr",
+      "ne",
+      "mai",
+      "doi",
+      "kok",
+      "sa",
+      "sd",
+      "gu",
+      "pa",
+      "bn",
+      "as",
+      "or",
+      "ur",
+      "ks"
+    ],
+    [
+      "en",
+      "hi"
+    ]
+  ],
+  "genders": {
+    "Prastuti": "female",
+    "Ankur": "male",
+    "Ishita": "female",
+    "Sourav": "male",
+    "Gwrbw": "female",
+    "Sansuma": "male",
+    "Preeti": "female",
+    "Sham": "male",
+    "Kavya": "female",
+    "Amit": "male",
+    "Suhani": "female",
+    "Dhara": "female",
+    "Parth": "male",
+    "Deepika": "female",
+    "Adarsh": "male",
+    "Anjali": "female",
+    "Sandeep": "male",
+    "Zoon": "female",
+    "Ishfaq": "male",
+    "Vaidehi": "female",
+    "Madhukar": "male",
+    "Lakshmi": "female",
+    "Kiran": "male",
+    "Thoibi": "female",
+    "Chaoba": "male",
+    "Anagha": "female",
+    "Chinmay": "male",
+    "Srijana": "female",
+    "Sagar": "male",
+    "Itishree": "female",
+    "Akash": "male",
+    "Kaur": "female",
+    "Manpreet": "male",
+    "Bharati": "female",
+    "Aryaman": "male",
+    "Phulmani": "female",
+    "Sibu": "male",
+    "Moomal": "female",
+    "Rano": "male",
+    "Anitha": "female",
+    "Arun": "male",
+    "Sravani": "female",
+    "Vamsi": "male",
+    "Saba": "female",
+    "Zaid": "male"
+  }
+}

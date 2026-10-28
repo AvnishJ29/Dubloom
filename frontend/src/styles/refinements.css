@@ -1,0 +1,424 @@
+/* ---------- Phones and tablets: the newer pieces follow the existing breakpoints ---------- */
+@media (max-width: 900px) {
+  .lang-pop {
+    max-width: calc(100vw - 32px);
+  }
+}
+@media (max-width: 640px) {
+  .composer-row .lang-picker {
+    width: 100%;
+  }
+  .composer-row .lang-pop {
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+  .composer-row .button.large {
+    width: 100%;
+  }
+  .dub-mode {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mode-pill {
+    min-width: 0;
+  }
+  .lang-grid {
+    grid-template-columns: 1fr 1fr;
+    max-height: 48vh;
+  }
+  .timeline-strip {
+    height: 30px;
+  }
+  .tl-line {
+    top: 7px;
+    height: 16px;
+  }
+  .chip {
+    max-width: 100%;
+  }
+  .stage video {
+    aspect-ratio: auto;
+    max-height: 70vh;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .mode-pill,
+  .lang-current,
+  .lang-grid li,
+  .button,
+  .recent-card {
+    min-height: 44px;
+  } /* comfortable touch targets */
+  .tl-line {
+    cursor: default;
+  }
+}
+
+/* streaming option and per-line progress states */
+.stream-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.stream-toggle input {
+  margin-top: 3px;
+  accent-color: var(--brand);
+}
+.stream-toggle em {
+  font-style: normal;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  margin-left: 2px;
+}
+.edited-badge.state.heard {
+  background: var(--bg-2);
+  color: var(--muted);
+}
+.edited-badge.state.translated {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.edited-badge.state.voiced {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.edited-badge.state.lip-synced {
+  background: color-mix(in srgb, var(--ok) 16%, var(--panel));
+  color: var(--ok);
+  border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent);
+}
+.edited-badge.enhanced.quiet {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+/* the quality check card */
+.quality h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+.quality.verdict-ok h3 i {
+  color: var(--ok);
+}
+.quality.verdict-check h3 i {
+  color: var(--warn);
+}
+.quality.verdict-fix h3 i {
+  color: var(--danger);
+}
+.quality-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quality-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+.quality-list li i {
+  margin-top: 2px;
+  flex: none;
+}
+.quality-list li.ok i {
+  color: var(--ok);
+}
+.quality-list li.check i {
+  color: var(--warn);
+}
+.quality-list li.fix i {
+  color: var(--danger);
+}
+
+/* ---------- Consistency pass: one scale for chips, badges and tags ---------- */
+.chip,
+.edited-badge,
+.tag {
+  font-size: 12px;
+  line-height: 1.2;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.chip i,
+.edited-badge i,
+.tag i {
+  font-size: 12px;
+}
+.panel h2,
+.panel-head h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.panel-sub {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.button:focus-visible,
+.icon-button:focus-visible {
+  outline-offset: 3px;
+}
+.library-empty {
+  padding: 18px 10px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Focus the studio on creating and reviewing a dub. */
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: -100px;
+  z-index: 100;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+}
+.skip-link:focus {
+  top: 12px;
+}
+.connection-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--warn-soft);
+}
+.composer {
+  order: 1;
+  padding: 24px;
+  border-color: var(--line-2);
+  gap: 16px;
+}
+.recent {
+  order: 3;
+}
+.composer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.composer-heading h2 {
+  margin-top: 4px;
+  font-size: 1.25rem;
+}
+.eyebrow {
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 700;
+}
+.composer-step {
+  color: var(--muted);
+  font-size: 12px;
+}
+.composer-tabs button {
+  min-height: 40px;
+}
+.mode-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.project.selected {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+.library {
+  scrollbar-width: none;
+}
+.library::-webkit-scrollbar {
+  display: none;
+}
+.library::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: 8px;
+}
+.lang-current,
+.icon-button {
+  min-height: 40px;
+}
+.lang-grid li.cursor {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+@media (max-width: 700px) {
+  .composer {
+    padding: 18px 14px;
+  }
+  .composer-heading {
+    align-items: flex-start;
+  }
+  .composer-step {
+    display: none;
+  }
+  .connection-banner {
+    align-items: flex-start;
+  }
+  input,
+  select,
+  textarea,
+  .composer-input input {
+    font-size: 16px;
+  }
+  .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (min-width: 901px) {
+  .icon-button.menu-toggle {
+    display: none;
+  }
+}
+
+html,
+body,
+.library,
+.lang-grid {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.library::-webkit-scrollbar,
+.lang-grid::-webkit-scrollbar {
+  display: none;
+}
+.composer {
+  order: 2;
+}
+.recent {
+  order: 4;
+}
+@media (max-width: 1120px) {
+}
+@media (max-width: 700px) {
+}
+
+.mode-pill strong i {
+  color: var(--ink-2);
+}
+
+/* Worth a look: the exact lines to shorten, each a jump to the line */
+.notes-sub {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.notes-sub i {
+  color: var(--warn);
+}
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.issue {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-2);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.issue:hover {
+  border-color: var(--line-2);
+  background: var(--bg-2);
+}
+.issue-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink);
+}
+.issue.bad span:nth-child(2) {
+  color: var(--danger);
+}
+.issue.warn span:nth-child(2) {
+  color: var(--warn);
+}
+.issue i {
+  margin-left: auto;
+  color: var(--muted);
+}
+.edited-badge.timing.bad {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.edited-badge.timing.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.line-history mark {
+  background: var(--warn-soft);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+button.edited-badge {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+button.edited-badge:disabled {
+  cursor: default;
+}
+.progress-copy .pulse {
+  background: var(--progress);
+}

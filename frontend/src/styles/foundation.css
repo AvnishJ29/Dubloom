@@ -1,0 +1,428 @@
+/* ---------- Tokens ----------
+   Cool neutral surfaces, one brand gradient (mark + primary action only), a dark stage for video,
+   one typeface with weight contrast. Semantic colours are separate from the brand hue. */
+:root {
+  --bg: #f7f8fc;
+  --bg-2: #eef0f6;
+  --panel: #ffffff;
+  --panel-2: #f8f9fc;
+  --ink: #101426;
+  --ink-2: #3a4157;
+  --muted: #6b7288;
+  --line: #e5e8f0;
+  --line-2: #cfd4e2;
+  --brand: #e8456b;
+  --brand-2: #ff8a3d;
+  --brand-ink: #ffffff;
+  --brand-soft: #fdeaef;
+  --ok: #1f9d63;
+  --ok-soft: #e3f5ec;
+  --warn: #c47a0a;
+  --warn-soft: #fbf0da;
+  --danger: #d6403f;
+  --danger-soft: #fbe4e4;
+  --stage: #0b0d14;
+  --stage-ink: #eef0f6;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 1px 2px rgba(16, 20, 38, 0.05), 0 10px 30px -18px rgba(16, 20, 38, 0.25);
+  --shadow-lg: 0 24px 60px -24px rgba(16, 20, 38, 0.35);
+  --font: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono:
+    'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; /* times, counts, labels */
+  --display:
+    'Bricolage Grotesque', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif; /* headlines, brand, numbers */
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif; /* one accent word */
+  --progress: #5b5bd6;
+  --progress-soft: #ebebfc; /* work in progress, never red */
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #0c0e16;
+  --bg-2: #11141f;
+  --panel: #151928;
+  --panel-2: #1a1f30;
+  --ink: #eef0f6;
+  --ink-2: #c3c8d8;
+  --muted: #8d94aa;
+  --line: #242a3d;
+  --line-2: #343b52;
+  --brand: #ff6b8a;
+  --progress: #9d9dff;
+  --progress-soft: #23233f;
+  --brand-2: #ffa36b;
+  --brand-ink: #1a0b10;
+  --brand-soft: #3a1b26;
+  --ok: #4cc98a;
+  --ok-soft: #16321f;
+  --warn: #e6a341;
+  --warn-soft: #3a2d14;
+  --danger: #f07171;
+  --danger-soft: #3b1c1c;
+  --stage: #05060a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 36px -20px rgba(0, 0, 0, 0.8);
+  --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+.brand,
+.stat-value,
+.progress-value {
+  font-family: var(--display);
+}
+h2 {
+  font-size: 1.1rem;
+}
+h3 {
+  font-size: 1rem;
+}
+p {
+  margin: 0;
+}
+a {
+  color: inherit;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+select {
+  color-scheme: inherit;
+}
+select,
+option {
+  background-color: var(--panel);
+  color: var(--ink);
+} /* the popup list follows the theme, never a white list with light text */
+button {
+  cursor: pointer;
+}
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+::selection {
+  background: var(--brand-soft);
+}
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .pulse {
+    animation: none !important;
+  }
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---------- Shell ---------- */
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  padding: 0 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: block;
+  box-shadow: 0 8px 18px -8px var(--brand);
+  transition: transform 0.2s;
+}
+.brand:hover .brand-mark {
+  transform: scale(1.04);
+}
+.brand-mark.large {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+}
+.logo.plain {
+  overflow: visible;
+}
+.top-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--bg-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.status-pill.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.status-pill.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.status-pill.busy {
+  background: var(--progress-soft);
+  color: var(--progress);
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  flex: none;
+}
+.menu-toggle {
+  display: none;
+}
+
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 296px minmax(0, 1fr);
+}
+.library {
+  position: sticky;
+  top: 60px;
+  align-self: start;
+  height: calc(100dvh - 60px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 16px;
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+}
+.library-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 6px 4px 0;
+}
+.library-label span {
+  font-weight: 500;
+}
+.library-empty {
+  color: var(--muted);
+  font-size: 13.5px;
+  padding: 8px 4px;
+}
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.project {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition: background 0.15s;
+}
+.project:hover {
+  background: var(--bg-2);
+}
+.project.selected {
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+.thumb {
+  flex: none;
+  width: 56px;
+  height: 40px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--stage);
+  display: grid;
+  place-items: center;
+  color: var(--stage-ink);
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.project-copy strong {
+  font-weight: 600;
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-copy small {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project.status-running small:first-of-type {
+  color: var(--progress);
+}
+.project.status-queued small:first-of-type {
+  color: var(--muted);
+}
+.project.status-completed small:first-of-type {
+  color: var(--ok);
+}
+.project.status-failed small:first-of-type {
+  color: var(--danger);
+}
+.mini-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+  margin-top: 3px;
+}
+.mini-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  transition: width 0.4s;
+}
+.library-foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px 4px 0;
+  border-top: 1px solid var(--line);
+}
+.link-button {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+  padding: 0;
+}
+.link-button:hover {
+  color: var(--danger);
+}
+main {
+  padding: 32px 36px 72px;
+  min-width: 0;
+}
+.loading {
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.scrim {
+  display: none;
+}
+
+.library::-webkit-scrollbar {
+  display: none;
+} /* the project list scrolls, but never shows a bar */

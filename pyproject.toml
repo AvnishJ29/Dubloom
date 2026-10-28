@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+skip-string-normalization = true
+extend-exclude = '''
+^/(
+    backend/vendor
+  | Wav2Lip
+  | gfpgan
+  | third_party
+  | jobs
+  | scratch
+)/
+'''

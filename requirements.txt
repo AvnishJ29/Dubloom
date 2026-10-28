@@ -1,0 +1,33 @@
+# Dubloom studio and development tools (Python 3.12).
+# run.sh selects CPU/CUDA torch wheels before installing this file.
+# Isolated model-worker pins are managed by scripts/setup_models.sh.
+
+# HTTP API and provider clients
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+python-dotenv>=1,<2
+httpx>=0.27,<1
+python-multipart>=0.0.9
+
+# Media input and processing
+yt-dlp[default]>=2025.1.1
+numpy>=1.26,<3
+scipy>=1.11
+opencv-python-headless>=4.8
+librosa>=0.10
+pyloudnorm>=0.1.1
+
+# Wav2Lip fallback, separation and speaker analysis
+torch==2.5.1
+torchaudio==2.5.1
+demucs>=4.0.1
+scikit-learn>=1.4,<2
+sherpa-onnx>=1.10
+openvino>=2024.6
+
+# Alternative diarization path (selected with DIARIZATION_BACKEND=speechbrain)
+speechbrain>=1.0,<2
+silero-vad>=6,<7
+
+# Shared formatter used locally and by CI
+black==25.1.0

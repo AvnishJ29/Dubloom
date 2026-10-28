@@ -1,0 +1,5 @@
+# Keep vendored implementations distinct from studio code on GitHub.
+* text=auto eol=lf
+
+Wav2Lip/** -text linguist-vendored
+backend/vendor/** -text linguist-vendored

@@ -1,0 +1,21 @@
+[Unit]
+Description=Dubloom dubbing studio (FastAPI + Vue UI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/dubloom
+ExecStart=/opt/dubloom/.venv/bin/python /opt/dubloom/main.py
+Restart=on-failure
+# Heavy model work yields to other services on a shared machine
+Nice=10
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=OMP_NUM_THREADS=8
+# Long renders must finish gracefully on stop
+TimeoutStopSec=30
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

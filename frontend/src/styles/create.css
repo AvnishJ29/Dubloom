@@ -1,0 +1,326 @@
+/* ---------- Create ---------- */
+.create {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.composer {
+  /* Popovers must sit above recent cards, whose entrance animation creates stacking contexts. */
+  position: relative;
+  z-index: 2;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 14px 14px 16px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.composer-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  align-self: flex-start;
+}
+.composer-tabs button {
+  border: 0;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.composer-tabs button.active {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.composer-tabs.small button {
+  padding: 4px 10px;
+  font-size: 12.5px;
+}
+.composer-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.composer-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  min-height: 54px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 18px;
+  min-width: 0;
+}
+.composer-input:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px var(--brand-soft);
+}
+.composer-input input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-size: 15.5px;
+  color: var(--ink);
+  min-width: 0;
+}
+.composer-input input::placeholder {
+  color: var(--muted);
+}
+.composer-lang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--panel-2);
+  font-size: 14px;
+  color: var(--muted);
+}
+.composer-lang.grow {
+  flex: 1;
+}
+.composer-lang select {
+  border: 0;
+  background: var(--panel-2);
+  font-weight: 600;
+  color: var(--ink);
+  padding: 10px 8px;
+  outline: none;
+  border-radius: 999px;
+}
+.composer-file {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px;
+  border: 1.5px dashed var(--line-2);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.dropzone:hover,
+.dropzone.dragging {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+.dropzone i {
+  font-size: 30px;
+  color: var(--brand);
+}
+.dropzone strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.dropzone span {
+  font-size: 13px;
+}
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+.file-chip video {
+  width: 84px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--stage);
+}
+.file-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.file-copy strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-copy span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.composer-hint {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 0 6px;
+}
+.composer-hint strong {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.upload-progress {
+  position: relative;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.upload-progress div {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--brand-soft);
+  transition: width 0.3s;
+}
+.upload-progress span {
+  position: relative;
+}
+.settings {
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+.settings summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-radius: var(--radius-sm);
+}
+.settings summary::-webkit-details-marker {
+  display: none;
+}
+.settings summary span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.settings summary:hover {
+  background: var(--bg-2);
+}
+.settings .caret {
+  transition: transform 0.2s;
+  color: var(--muted);
+}
+.settings[open] .caret {
+  transform: rotate(180deg);
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  padding: 10px 6px 6px;
+}
+.setup-warning {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 13.5px;
+}
+.recent-head {
+  margin-bottom: 12px;
+}
+.recent-head h2 {
+  font-size: 1.05rem;
+}
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.recent-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  transition:
+    transform 0.12s,
+    box-shadow 0.15s;
+}
+.recent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.recent-thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--stage);
+  display: grid;
+  place-items: center;
+  color: var(--stage-ink);
+  font-size: 22px;
+}
+.recent-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.recent-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.recent-copy strong {
+  font-weight: 600;
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-copy small {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-card.status-completed small {
+  color: var(--ok);
+}
+.recent-card.status-running small {
+  color: var(--progress);
+}
