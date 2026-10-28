@@ -12,7 +12,7 @@ from backend.config import settings
 from backend.jobs.context import DubRun
 from backend.jobs.control import run_segment_stage
 from backend.media.video_input import cut_audio
-from backend.models import Segment
+from backend.models import LANGUAGES, Segment
 from backend.providers import openrouter
 from backend.providers.bodhan_api import BodhanRateLimitError
 from backend.speech.asr import (
@@ -57,6 +57,7 @@ def understand_content(dub: DubRun):
                 dub.job.get('title') or '',
                 dub.source_language,
                 dub.usage,
+                target=LANGUAGES.get(dub.language, dub.language),
             )
             if dub.content:
                 dub.save(script_profile=dub.content)
@@ -234,6 +235,7 @@ def translate_script(dub: DubRun):
                 dub.job.get('title') or '',
                 dub.source_language,
                 dub.usage,
+                target=LANGUAGES.get(dub.language, dub.language),
             )
             if dub.content:
                 dub.save(script_profile=dub.content)

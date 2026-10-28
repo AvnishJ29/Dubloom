@@ -128,7 +128,7 @@ match the register of the dub to the content. Respond with JSON only:
 {{"genre": one of "lecture", "news", "film", "advert", "documentary", "story", "interview", "service", "other",
  "label": "<3-6 words a person would say, e.g. 'University lecture on optimisation'>",
  "register": "<one sentence on how the {target} should sound: formality, pace, address form, vocabulary; for a lecture
- a formal teaching register with आप, for a film the characters' own register, for news a composed anchor register, etc.>"}}"""
+ a formal teaching register with the polite form of address, for a film the characters' own register, for news a composed anchor register, etc.>"}}"""
 
 
 def profile_content(
