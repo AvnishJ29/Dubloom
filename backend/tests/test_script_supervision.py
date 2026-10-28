@@ -84,6 +84,13 @@ class SpeakerReviewVotingTest(unittest.TestCase):
         self.assertEqual(doom["gender"], "male")  # 100-105 Hz overrules "female"
 
 
+class MajorityTest(unittest.TestCase):
+    def test_ties_go_to_the_first_value_heard(self):
+        self.assertEqual(speaker_review._majority(["male", "female"], "unknown"), "male")
+        self.assertEqual(speaker_review._majority(["female", "male"], "unknown"), "female")
+        self.assertEqual(speaker_review._majority(["", ""], "unknown"), "unknown")
+
+
 class PostEditTest(unittest.TestCase):
     def test_only_new_lines_are_edited_so_voiced_lines_keep_their_audio(self):
         lines = [

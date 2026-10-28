@@ -1,6 +1,7 @@
 """Two render slots on two GPUs: each holder's workers see their own card; one GPU is shared when only one exists."""
 
 import threading
+import time
 import unittest
 
 from backend.jobs.gpus import GpuPool
@@ -38,6 +39,31 @@ class GpuPoolTest(unittest.TestCase):
         pool = GpuPool(["0"])
         self.assertNotIn("CUDA_VISIBLE_DEVICES", pool.env({"PATH": "x"}))
         self.assertEqual(pool.env({"PATH": "x"})["PATH"], "x")
+
+
+class BlockingAcquireTest(unittest.TestCase):
+    def test_a_blocking_acquire_waits_for_the_slot(self):
+        pool = GpuPool(["0"])
+        held = threading.Event()
+
+        def hold():  # a render that finishes shortly
+            pool.acquire()
+            held.set()
+            time.sleep(0.2)
+            pool.release()
+
+        holder = threading.Thread(target=hold)
+        holder.start()
+        held.wait()
+        self.assertTrue(pool.acquire())  # waits for the release instead of failing at once
+        pool.release()
+        holder.join()
+
+    def test_a_timeout_gives_up_while_the_slot_is_held(self):
+        pool = GpuPool(["0"])
+        self.assertTrue(pool.acquire(blocking=False))
+        self.assertFalse(pool.acquire(timeout=0.1))
+        pool.release()
 
 
 if __name__ == "__main__":

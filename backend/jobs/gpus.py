@@ -27,11 +27,7 @@ class GpuPool:
         Returns False when no slot is free and `blocking` is off or `timeout` seconds pass. Every
         successful call must be paired with release() on the same thread.
         """
-        ok = (
-            self.semaphore.acquire(blocking, -1 if timeout is None else timeout)
-            if blocking
-            else self.semaphore.acquire(False)
-        )
+        ok = self.semaphore.acquire(True, timeout) if blocking else self.semaphore.acquire(False)
         if ok:
             with self.lock:
                 self.local.gpu = self.free.pop()

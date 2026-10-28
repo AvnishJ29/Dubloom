@@ -65,7 +65,6 @@ export function upload(path, formData, onProgress) {
       else reject(new ApiError(errorDetail(body, 'The upload was rejected.'), xhr.status))
     }
     xhr.send(formData)
-    return xhr
   })
 }
 

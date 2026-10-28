@@ -169,9 +169,9 @@ def _one_review(prompt: str, data: str, usage) -> dict | None:
 
 
 def _majority(values: list[str], default: str) -> str:
-    """The most common non-empty value, or `default` when there is none."""
+    """The most common non-empty value (ties go to the one seen first), or `default` when there is none."""
     values = [v for v in values if v]
-    return max(set(values), key=values.count) if values else default
+    return max(dict.fromkeys(values), key=values.count) if values else default
 
 
 def review_speakers(

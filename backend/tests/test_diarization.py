@@ -36,5 +36,22 @@ class DiarizationTest(unittest.TestCase):
         self.assertEqual(split_points(0.0, 52.0, None), [25.0, 50.0])
 
 
+class DiarizenFallbackTest(unittest.TestCase):
+    def test_diarizen_without_its_environment_falls_back_to_sherpa(self):
+        with (
+            patch(
+                "backend.speakers.diarization.settings",
+                SimpleNamespace(diarization_backend='diarizen'),
+            ),
+            patch(
+                "backend.speakers.local_diarization.diarize",
+                return_value=[Segment(0, 4, "SPEAKER_00")],
+            ),
+        ):
+            turns, mode = speaker_turns(Path("unused.wav"))
+        self.assertEqual([(part.start, part.end) for part in turns], [(0, 4)])
+        self.assertIn("ONNX", mode)
+
+
 if __name__ == "__main__":
     unittest.main()

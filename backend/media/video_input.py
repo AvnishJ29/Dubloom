@@ -132,6 +132,11 @@ def validate_url(url: str) -> str:
     return parsed.geturl()
 
 
+def _check_hop(request: httpx.Request):
+    """Validate every request a download makes, so a public link cannot redirect to a local address."""
+    validate_url(str(request.url))
+
+
 def _guess_extension(url: str, content_type: str) -> str:
     path_ext = Path(unquote(urlparse(url).path)).suffix.lower()
     if path_ext in MEDIA_EXTENSIONS:
@@ -147,7 +152,9 @@ def _guess_extension(url: str, content_type: str) -> str:
 def _inspect_url(url: str) -> tuple[str, int, str]:
     """Return (content type, content length, final URL) without downloading the body."""
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Dubloom/1.0", "Range": "bytes=0-0"}
-    with httpx.Client(follow_redirects=True, timeout=20) as client:
+    with httpx.Client(
+        follow_redirects=True, timeout=20, event_hooks={"request": [_check_hop]}
+    ) as client:
         try:
             response = client.get(url, headers=headers)
         except httpx.HTTPError:
@@ -186,7 +193,11 @@ def _download_direct(url: str, destination: Path, max_bytes: int, progress=None)
     """
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Dubloom/1.0"}
     received = 0
-    with httpx.Client(follow_redirects=True, timeout=httpx.Timeout(30, read=120)) as client:
+    with httpx.Client(
+        follow_redirects=True,
+        timeout=httpx.Timeout(30, read=120),
+        event_hooks={"request": [_check_hop]},
+    ) as client:
         with client.stream("GET", url, headers=headers) as response:
             if response.status_code >= 400:
                 raise SourceError(f"The media URL returned HTTP {response.status_code}")

@@ -159,7 +159,8 @@ def speaker_turns(
     at pauses (split_points); times are in seconds. Any backend failure is raised as RuntimeError.
     """
     try:
-        if settings.diarization_backend == 'sherpa':
+        # 'diarizen' arrives here only when its own environment is missing: sherpa is the light fallback
+        if settings.diarization_backend in {'sherpa', 'diarizen'}:
             from backend.speakers.local_diarization import diarize as local_diarize
 
             turns = local_diarize(audio, progress=progress, num_speakers=num_speakers)

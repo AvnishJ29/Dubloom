@@ -3,11 +3,10 @@
 
 def _timestamp(seconds: float, separator: str = ",") -> str:
     """HH:MM:SS,mmm timestamp; `separator` "." gives the WebVTT form."""
-    seconds = max(0.0, float(seconds))
-    hours, rest = divmod(seconds, 3600)
-    minutes, rest = divmod(rest, 60)
-    whole, fraction = divmod(rest, 1)
-    return f"{int(hours):02d}:{int(minutes):02d}:{int(whole):02d}{separator}{int(round(fraction * 1000)):03d}"
+    ms = int(
+        round(max(0.0, float(seconds)) * 1000)
+    )  # round once, so 0.9996 s carries into the next second
+    return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d}{separator}{ms % 1000:03d}"
 
 
 def build_subtitles(
