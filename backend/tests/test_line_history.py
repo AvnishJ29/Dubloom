@@ -12,7 +12,7 @@ class LineHistoryTest(unittest.TestCase):
     def test_edits_by_the_ai_and_by_you_stack_up_and_nothing_is_lost(self):
         from fastapi.testclient import TestClient
         from backend import api
-        from backend.jobs import pipeline
+        from backend.jobs import store as jobstore
 
         with TemporaryDirectory() as temp:
             root = Path(temp)
@@ -39,7 +39,7 @@ class LineHistoryTest(unittest.TestCase):
             )
             with (
                 patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
-                patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=root)),
+                patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
                 patch.object(api, "start_job"),
             ):
                 client = TestClient(api.app)

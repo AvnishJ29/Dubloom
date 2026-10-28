@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
+from backend.config import settings
 from backend.rendering.mouth_enhance import enhance_lips, mouth_box
 
 
@@ -23,6 +24,10 @@ class MouthEnhanceTest(unittest.TestCase):
             report = enhance_lips(root / "lips.mp4", root / "t.npz", root / "out.mp4")
             self.assertFalse(report["applied"])
 
+    @unittest.skipUnless(
+        settings.esrgan_weights.is_file(),
+        "needs the Real-ESRGAN weights from scripts/setup_models.sh",
+    )
     def test_large_faces_are_sharpened_and_the_video_keeps_its_shape(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)

@@ -9,7 +9,7 @@ from unittest.mock import patch
 from fastapi import HTTPException
 
 from backend.api import validate_clip
-from backend.jobs.pipeline import cut_section
+from backend.jobs.stages.source import cut_section
 
 
 class SectionTest(unittest.TestCase):

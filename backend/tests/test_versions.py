@@ -102,11 +102,11 @@ class RenameTest(unittest.TestCase):
                 json.dumps({"id": job_id, "status": "completed", "title": "Old", "language": "hi"}),
                 encoding="utf-8",
             )
-            from backend.jobs import pipeline
+            from backend.jobs import store as jobstore
 
             with (
                 patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
-                patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=root)),
+                patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
             ):
                 client = TestClient(api.app)
                 response = client.patch(f"/api/jobs/{job_id}", json={"title": "  New name "})
@@ -124,7 +124,7 @@ class MergeTest(unittest.TestCase):
         from fastapi.testclient import TestClient
         from unittest.mock import patch
         from backend import api
-        from backend.jobs import pipeline
+        from backend.jobs import store as jobstore
 
         with TemporaryDirectory() as temp:
             root = Path(temp)
@@ -165,7 +165,7 @@ class MergeTest(unittest.TestCase):
             )
             with (
                 patch.object(api, "settings", SimpleNamespace(jobs_dir=root, studio_password="")),
-                patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=root)),
+                patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
                 patch.object(api, "start_job", lambda *a, **k: None),
             ):
                 response = TestClient(api.app).post(

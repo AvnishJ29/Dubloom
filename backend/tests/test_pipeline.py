@@ -1,12 +1,14 @@
 """The orchestration order matters because every later stage uses timed speaker turns."""
 
+from contextlib import ExitStack
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from backend.jobs import pipeline
+from backend.jobs import context, control, pipeline, store
+from backend.jobs.stages import background, mix, render, script, source, speakers, voicing
 from backend.speech.fitting import FitReport
 from backend.models import Segment
 
@@ -116,7 +118,7 @@ class PipelineOrderTest(unittest.TestCase):
                 calls.append(("diarization", ""))
                 return [Segment(0, 1, "SPEAKER_00"), Segment(2, 3, "SPEAKER_01")], "test"
 
-            def mix(*args):
+            def fake_mix(*args):
                 calls.append(("mix", ""))
                 return Path(temp) / "dub.wav"
 
@@ -124,28 +126,67 @@ class PipelineOrderTest(unittest.TestCase):
                 calls.append(("lip_sync", ""))
                 return Path(temp) / "dub.mp4"
 
-            with (
-                patch.object(pipeline, "settings", settings),
-                patch.object(pipeline, "store", FakeStore()),
-                patch.object(pipeline, "acquire_source", return_value=Path(temp) / "source.mp4"),
-                patch.object(
-                    pipeline, "probe", return_value={"duration": 3, "width": 0, "height": 0}
-                ),
-                patch.object(pipeline, "make_poster"),
-                patch.object(pipeline, "write_preview"),
-                patch.object(pipeline, "speaker_profiles", return_value={}),
-                patch.object(pipeline, "classify_genders", return_value={}),
-                patch.object(pipeline, "extract_audio"),
-                patch.object(pipeline, "cut_audio"),
-                patch.object(pipeline, "speaker_turns", side_effect=diarize),
-                patch.object(pipeline, "BodhanAPI", return_value=FakeClient()),
-                patch.object(pipeline, "transcribe", side_effect=fake_asr),
-                patch.object(pipeline, "translate", side_effect=fake_translation),
-                patch.object(pipeline, "VoiceState", FakeVoices),
-                patch.object(pipeline, "fit_lines", return_value=FitReport()),
-                patch.object(pipeline, "assemble_timeline", side_effect=mix),
-                patch.object(pipeline, "synchronize", side_effect=lip),
-            ):
+            fake_store = FakeStore()
+            fakes = {
+                source: {
+                    "acquire_source": patch.object(
+                        source, "acquire_source", return_value=Path(temp) / "source.mp4"
+                    ),
+                    "probe": patch.object(
+                        source, "probe", return_value={"duration": 3, "width": 0, "height": 0}
+                    ),
+                    "make_poster": patch.object(source, "make_poster"),
+                    "extract_audio": patch.object(source, "extract_audio"),
+                },
+                speakers: {
+                    "speaker_profiles": patch.object(speakers, "speaker_profiles", return_value={}),
+                    "classify_genders": patch.object(speakers, "classify_genders", return_value={}),
+                    "speaker_turns": patch.object(speakers, "speaker_turns", side_effect=diarize),
+                },
+                script: {
+                    "cut_audio": patch.object(script, "cut_audio"),
+                    "transcribe": patch.object(script, "transcribe", side_effect=fake_asr),
+                    "translate": patch.object(script, "translate", side_effect=fake_translation),
+                },
+                voicing: {
+                    "VoiceState": patch.object(voicing, "VoiceState", FakeVoices),
+                    "fit_lines": patch.object(voicing, "fit_lines", return_value=FitReport()),
+                },
+                mix: {
+                    "assemble_timeline": patch.object(
+                        mix, "assemble_timeline", side_effect=fake_mix
+                    )
+                },
+                render: {
+                    "write_preview": patch.object(render, "write_preview"),
+                    "synchronize": patch.object(render, "synchronize", side_effect=lip),
+                },
+                pipeline: {
+                    "BodhanAPI": patch.object(pipeline, "BodhanAPI", return_value=FakeClient())
+                },
+            }
+            with ExitStack() as stack:
+                # every module that reads settings during a run sees the test's settings
+                for module in (
+                    context,
+                    control,
+                    store,
+                    source,
+                    speakers,
+                    background,
+                    script,
+                    voicing,
+                    mix,
+                    render,
+                    pipeline,
+                ):
+                    if hasattr(module, "settings"):
+                        stack.enter_context(patch.object(module, "settings", settings))
+                stack.enter_context(patch.object(store.store, "get", fake_store.get))
+                stack.enter_context(patch.object(store.store, "save", fake_store.save))
+                for patches in fakes.values():
+                    for fake in patches.values():
+                        stack.enter_context(fake)
                 pipeline.process_job("test")
 
         self.assertEqual(FakeStore.state.get("status"), "completed")

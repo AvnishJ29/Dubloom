@@ -30,7 +30,9 @@ from backend.media.shorts import make_short
 from backend.jobs.takes import choose_take, generate_take
 from backend.rendering.lip_models import LIP_SYNC_MODELS, available_models
 from backend.models import ACTIVE_STATUSES, LANGUAGES, TERMINAL_STATUSES, VOICES
-from backend.jobs.pipeline import cancel_job, is_running, resume_lip_sync, run_job, store, utcnow
+from backend.jobs.control import cancel_job, is_running
+from backend.jobs.pipeline import resume_lip_sync, run_job
+from backend.jobs.store import store, utcnow
 from backend.media.separation import separation_available
 from backend.speech.styles import DELIVERY_STYLES, TONE_TO_STYLE, style_options
 from backend.media.subtitles import build_subtitles

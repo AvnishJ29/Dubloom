@@ -2,7 +2,7 @@
 
 import threading
 import unittest
-from backend.jobs.pipeline import run_segment_stage
+from backend.jobs.control import run_segment_stage
 
 
 class ParallelStagesTest(unittest.TestCase):

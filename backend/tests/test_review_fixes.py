@@ -14,7 +14,7 @@ def studio(root: Path):
     """A finished one-line job on disk and a test client whose job runner does nothing."""
     from fastapi.testclient import TestClient
     from backend import api
-    from backend.jobs import pipeline
+    from backend.jobs import store as jobstore
 
     folder = root / JOB
     folder.mkdir()
@@ -51,7 +51,7 @@ def studio(root: Path):
     )
     return TestClient(api.app), [
         patch.object(api, "settings", settings),
-        patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=root)),
+        patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=root)),
         patch.object(api, "start_job"),
         patch.object(api, "check_ready"),
     ]
@@ -60,7 +60,7 @@ def studio(root: Path):
 class ReviewFixesTest(unittest.TestCase):
     def test_a_re_render_keeps_each_lines_history(self):
         from backend.models import Segment
-        from backend.jobs.pipeline import restore_line
+        from backend.jobs.stages.speakers import restore_line
 
         saved = {
             "text": "Hi",
@@ -179,13 +179,13 @@ class FreshDubTimingTest(unittest.TestCase):
 
     def test_the_job_store_saves_numpy_values(self):
         import numpy as np
-        from backend.jobs import pipeline
+        from backend.jobs import store as jobstore
 
         with (
             TemporaryDirectory() as temp,
-            patch.object(pipeline, "settings", SimpleNamespace(jobs_dir=Path(temp))),
+            patch.object(jobstore, "settings", SimpleNamespace(jobs_dir=Path(temp))),
         ):
-            store = pipeline.JobStore()
+            store = jobstore.JobStore()
             store.save(
                 "job",
                 segments=[{"timing_trimmed": np.bool_(True), "timing_borrowed": np.float64(0.25)}],
