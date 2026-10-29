@@ -91,7 +91,7 @@ class ShortRequest(BaseModel):
     start: float = Field(ge=0)
     end: float = Field(gt=0)
     layout: str = "face"  # face | centre | blur
-    subtitles: bool = True
+    subtitles: bool = False  # burn in the dubbed lines
 
 
 class Merge(BaseModel):

@@ -106,7 +106,7 @@ The pipeline reuses unchanged speech, model analysis and rendered spans. Process
 | `frontend/tests/`, `frontend/scripts/` | Client tests and formatting tools |
 | `scripts/`, `scripts/systemd/` | Model setup, deployment and optional systemd service |
 | `docs/` | Setup/video guides and editable Mermaid pipeline diagrams |
-| `fonts/` | Fonts required by burned-in subtitles |
+| `fonts/` | Noto fonts for every script, used when a short burns in the dubbed lines (SIL OFL, see `fonts/OFL.txt`) |
 | `Wav2Lip/`, `backend/vendor/` | Vendored implementations; see [vendored-code guide](docs/VENDORED_CODE.md) |
 | `models/`, `third_party/`, `.venv*/`, `gfpgan/weights/` | Local weights, checkouts and environments; not committed |
 | `jobs/`, `logs/`, `scratch/` | Runtime data; not committed |

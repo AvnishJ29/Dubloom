@@ -7,7 +7,7 @@ const emit = defineEmits(['create', 'remove', 'seek'])
 const start = ref(0)
 const end = ref(0)
 const layout = ref('face')
-const subtitles = ref(true)
+const subtitles = ref(false)
 const duration = computed(() => props.job.duration || 0)
 const length = computed(() => Math.max(0, end.value - start.value))
 const valid = computed(
@@ -38,7 +38,7 @@ const parse = (value) => {
 <template>
   <section class="panel shorts">
     <header class="panel-head">
-      <div><h2>Shorts</h2><span class="panel-sub">Cut a vertical clip of the dub with the lines burned in. Up to 3 minutes.</span></div>
+      <div><h2>Shorts</h2><span class="panel-sub">Cut a vertical clip of the dub, up to 3 minutes long.</span></div>
     </header>
     <div class="short-form">
       <label class="field compact"><span>From</span>

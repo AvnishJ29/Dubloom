@@ -6,7 +6,7 @@ These folders are dependencies of the studio, rather than obsolete experiments. 
 | --- | --- | --- |
 | `Wav2Lip/` | Modified local lip-sync fallback, face detection and rendering utilities | `backend/rendering/wav2lip.py`; checkpoint paths in `.env.example` |
 | `backend/vendor/normalize_volume.py` | Preserved audio-normalization implementation used by the studio | `backend/media/audio_norm.py` |
-| `fonts/` | Devanagari fonts for burned-in subtitle rendering | `backend/media/shorts.py` |
+| `fonts/` | Noto fonts for every script the studio dubs into (Devanagari, Bengali, Tamil, Arabic and the rest), for burned-in subtitles; SIL Open Font License in `fonts/OFL.txt` | `backend/media/shorts.py` |
 
 Wav2Lip's README describes its upstream project; its external service examples are not Dubloom's setup instructions. Use the root [README](../README.md) for this studio.
 

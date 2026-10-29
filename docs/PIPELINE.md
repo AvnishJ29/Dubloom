@@ -117,7 +117,7 @@ LatentSync uses aligned face crops and temporal windows. The worker caches spans
 | Generate/select take | `POST /lines/{i}/takes`, `/take` | Generate/select audio, then apply with a re-render |
 | Merge speakers | `POST /speakers/{speaker}/merge` | Relabel state and regenerate affected output |
 | Stop/continue | `POST /cancel`, `/resume` | Cancel processes or resume reusable work |
-| Make short | `POST /shorts` | Crop/pad finished video and burn subtitle cues |
+| Make short | `POST /shorts` | Crop/pad finished video; burn in subtitle cues when asked |
 
 A new job can reuse prepared source through `POST /api/jobs` with `source_job`.
 

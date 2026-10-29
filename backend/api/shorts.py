@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post("/api/jobs/{job_id}/shorts")
 def create_short(job_id: UUID, request: ShortRequest):
-    """Cut a vertical short from the finished dub with the dubbed lines burned in."""
+    """Cut a vertical short from the finished dub, burning in the dubbed lines when asked."""
     job = existing_job(job_id)
     if job["status"] != "completed":
         raise HTTPException(409, "Finish the dub first")

@@ -1,13 +1,55 @@
-"""A short is a vertical cut of the dub with the dubbed lines burned in, framed on the face when known."""
+"""A short is a vertical cut of the dub, framed on the face when known. Its dubbed lines are burned in
+only when asked, in a bundled font for their script."""
 
 import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import patch
+from uuid import uuid4
 
 import numpy as np
+from fastapi.testclient import TestClient
 
-from backend.media.shorts import face_crop_x, make_short, write_subtitles
+from backend.api import app, helpers, system
+from backend.jobs import store as job_store
+from backend.media.shorts import (
+    FONT_DIR,
+    SCRIPT_FONTS,
+    face_crop_x,
+    make_short,
+    subtitle_font,
+    write_subtitles,
+)
+
+
+def _clip(path: Path):
+    """A 3-second 640x360 test video with sound, standing in for a finished dub."""
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            "testsrc=size=640x360:rate=25:duration=3",
+            "-f",
+            "lavfi",
+            "-i",
+            "sine=frequency=330:duration=3",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            str(path),
+        ],
+        check=True,
+    )
 
 
 class ShortsTest(unittest.TestCase):
@@ -63,30 +105,7 @@ class ShortsTest(unittest.TestCase):
     def test_short_is_vertical_and_subtitled(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-v",
-                    "error",
-                    "-f",
-                    "lavfi",
-                    "-i",
-                    "testsrc=size=640x360:rate=25:duration=3",
-                    "-f",
-                    "lavfi",
-                    "-i",
-                    "sine=frequency=330:duration=3",
-                    "-c:v",
-                    "libx264",
-                    "-pix_fmt",
-                    "yuv420p",
-                    "-c:a",
-                    "aac",
-                    str(root / "dubbed_video.mp4"),
-                ],
-                check=True,
-            )
+            _clip(root / "dubbed_video.mp4")
             job = {
                 "segments": [{"start": 0.2, "end": 2.5, "translation": "नमस्ते score-based models"}],
                 "shorts": [],
@@ -112,6 +131,44 @@ class ShortsTest(unittest.TestCase):
             self.assertEqual(out, "1080,1920")
             with self.assertRaises(ValueError):
                 make_short(job, root, 0.0, 0.5, "centre", False)
+
+    def test_a_short_has_no_subtitles_unless_asked(self):
+        with TemporaryDirectory() as temp:
+            root = Path(temp)
+            job_id = str(uuid4())
+            (root / job_id).mkdir()
+            _clip(root / job_id / "dubbed_video.mp4")
+            settings = SimpleNamespace(jobs_dir=root)
+            with (
+                patch.object(helpers, "settings", settings),
+                patch.object(system, "settings", settings),
+                patch.object(job_store, "settings", settings),
+            ):
+                job_store.store.save(
+                    job_id,
+                    status="completed",
+                    segments=[{"start": 0.2, "end": 2.5, "translation": "नमस्ते"}],
+                )
+                response = TestClient(app).post(
+                    f"/api/jobs/{job_id}/shorts", json={"start": 0, "end": 2}
+                )
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertFalse(response.json()["subtitles"])
+            self.assertEqual(list((root / job_id / "shorts").glob("*.srt")), [])
+
+    def test_every_script_is_drawn_with_a_bundled_font(self):
+        samples = {
+            "তাতে সবসময় নানা annotations থাকবে।": "Noto Sans Bengali",
+            "இது ஒரு test": "Noto Sans Tamil",
+            "ఇది ఒక test": "Noto Sans Telugu",
+            "यह एक test है": "Noto Sans Devanagari",
+            "یہ ایک test ہے": "Noto Naskh Arabic",
+            "only English words": "Noto Sans Devanagari",
+        }
+        for text, font in samples.items():
+            self.assertEqual(subtitle_font(text), font, text)
+        for _, _, font in SCRIPT_FONTS:  # a script without its font file shows as empty boxes
+            self.assertTrue((FONT_DIR / f"{font.replace(' ', '')}-Regular.ttf").is_file(), font)
 
 
 if __name__ == "__main__":

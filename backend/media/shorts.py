@@ -1,4 +1,4 @@
-"""Shorts: a span of a finished dub as a vertical 9:16 clip with the dubbed lines burned in as subtitles.
+"""Shorts: a span of a finished dub as a vertical 9:16 clip, with the dubbed lines burned in when asked.
 
 The crop follows the speaking face when face analysis is available (one steady window for the whole short,
 no panning), otherwise the centre; 'blur' keeps the full width over a blurred background instead."""
@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,9 +16,33 @@ import numpy as np
 from backend.config import ROOT
 
 FONT_DIR = ROOT / "fonts"
-FONT = "Noto Sans Devanagari"
+# The bundled font for each script (Unicode block), so burned-in lines never show as empty boxes.
+# Every one of these fonts also has Latin letters, for the English words in code-mixed lines.
+SCRIPT_FONTS = (
+    (0x0600, 0x06FF, "Noto Naskh Arabic"),  # Urdu, Kashmiri, Sindhi
+    (0x0900, 0x097F, "Noto Sans Devanagari"),  # Hindi, Marathi, Nepali, Sanskrit, ...
+    (0x0980, 0x09FF, "Noto Sans Bengali"),  # Bengali, Assamese, Manipuri
+    (0x0A00, 0x0A7F, "Noto Sans Gurmukhi"),
+    (0x0A80, 0x0AFF, "Noto Sans Gujarati"),
+    (0x0B00, 0x0B7F, "Noto Sans Oriya"),
+    (0x0B80, 0x0BFF, "Noto Sans Tamil"),
+    (0x0C00, 0x0C7F, "Noto Sans Telugu"),
+    (0x0C80, 0x0CFF, "Noto Sans Kannada"),
+    (0x0D00, 0x0D7F, "Noto Sans Malayalam"),
+    (0x1C50, 0x1C7F, "Noto Sans Ol Chiki"),  # Santali
+    (0xABC0, 0xABFF, "Noto Sans Meetei Mayek"),  # Manipuri
+)
+DEFAULT_FONT = "Noto Sans Devanagari"  # English-only lines
 MAX_SECONDS = 180.0
 OUT_W, OUT_H = 1080, 1920
+
+
+def subtitle_font(text: str) -> str:
+    """The bundled font for the script most of `text` is written in."""
+    scripts = Counter(
+        font for char in text for low, high, font in SCRIPT_FONTS if low <= ord(char) <= high
+    )
+    return scripts.most_common(1)[0][0] if scripts else DEFAULT_FONT
 
 
 def _probe(path: Path) -> tuple[int, int, float]:
@@ -130,7 +155,7 @@ def make_short(
     start: float,
     end: float,
     layout: str = "face",
-    subtitles: bool = True,
+    subtitles: bool = False,
 ) -> dict:
     """Render shorts/short_<n>.mp4 and return its record (the caller appends it to job['shorts'])."""
     source = directory / "dubbed_video.mp4"
@@ -163,7 +188,9 @@ def make_short(
         srt = folder / f"short_{number}.srt"
         lines = write_subtitles(job.get("segments") or [], start, end, srt)
         if lines:
-            style = f"FontName={FONT},FontSize=15,Bold=1,Outline=1.5,Shadow=0,MarginV=64,Alignment=2,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000"
+            font = subtitle_font(srt.read_text(encoding="utf-8"))
+            # Encoding=-1 makes libass take each line's direction from its text (Urdu reads right to left)
+            style = f"FontName={font},FontSize=15,Bold=1,Outline=1.5,Shadow=0,MarginV=64,Alignment=2,Encoding=-1,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000"
             filters.append(
                 f"subtitles={srt.as_posix()}:fontsdir={FONT_DIR.as_posix()}:force_style='{style}'"
             )
