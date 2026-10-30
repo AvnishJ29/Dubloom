@@ -35,7 +35,7 @@ flowchart LR
     Faces -.-> Lips
 ```
 
-`process_job()` in [`backend/jobs/pipeline.py`](backend/jobs/pipeline.py) runs these steps in order, one module per stage in [`backend/jobs/stages/`](backend/jobs/stages/). The [pipeline guide](docs/PIPELINE.md) lists the model and code behind every stage.
+`process_job()` in [`backend/jobs/pipeline.py`](backend/jobs/pipeline.py) runs these steps in order, one module per stage in [`backend/jobs/stages/`](backend/jobs/stages/).
 
 ## Requirements
 
@@ -105,9 +105,8 @@ The pipeline reuses unchanged speech, model analysis and rendered spans. Process
 | `frontend/src/styles/`, `frontend/src/style.css` | Styles by concern and their ordered entry point |
 | `frontend/tests/`, `frontend/scripts/` | Client tests and formatting tools |
 | `scripts/`, `scripts/systemd/` | Model setup, deployment and optional systemd service |
-| `docs/` | Setup/video guides and editable Mermaid pipeline diagrams |
 | `fonts/` | Noto fonts for every script, used when a short burns in the dubbed lines (SIL OFL, see `fonts/OFL.txt`) |
-| `Wav2Lip/`, `backend/vendor/` | Vendored implementations; see [vendored-code guide](docs/VENDORED_CODE.md) |
+| `Wav2Lip/`, `backend/vendor/` | Vendored lip-sync and audio-normalization implementations |
 | `models/`, `third_party/`, `.venv*/`, `gfpgan/weights/` | Local weights, checkouts and environments; not committed |
 | `jobs/`, `logs/`, `scratch/` | Runtime data; not committed |
 
@@ -138,7 +137,7 @@ npm run build
 
 Backend tests use FFmpeg/ffprobe; model/provider interactions are generally mocked. The full setup is needed for real end-to-end dubbing. API documentation is available at **http://localhost:8001/docs**. CI checks formatting, client tests, Python syntax and the frontend build.
 
-See the [video/code walkthrough guide](docs/CODE_WALKTHROUGH.md), [development conventions](docs/DEVELOPMENT.md), [full pipeline](docs/PIPELINE.md) and [cluster deployment script](scripts/deploy_to_cluster.sh).
+See the [cluster deployment script](scripts/deploy_to_cluster.sh) for deployment.
 
 ## Known limitations
 

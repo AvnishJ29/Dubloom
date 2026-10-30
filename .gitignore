@@ -58,7 +58,6 @@ frontend/dist/
 *.rej
 *.bak
 *~
-docs/REVIEW-*.md
 backend/requirements-local.txt
 
 # Additional downloaded restoration weights
