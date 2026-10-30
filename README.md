@@ -1,6 +1,6 @@
 # Dubloom
 
-An AI dubbing studio for Indian languages, built on India's sovereign speech models. Upload a video or paste a link, pick a language, and Dubloom transcribes the dialogue, translates it, voices every speaker with a matching studio voice, fits each line to the original timing, and redraws the speakers' lips to match the new words. The result is an editable project: change a line, a voice or a delivery style, and only what changed is rendered again.
+An AI dubbing studio for Indian languages, built on India's sovereign models. Upload a video or paste a link, pick a language, and Dubloom transcribes the dialogue, translates it, voices every speaker with a matching studio voice, fits each line to the original timing, and redraws the speakers' lips to match the new words. The result is an editable project: change a line, a voice or a delivery style, and only what changed is rendered again.
 
 Built with **FastAPI + Vue 3**. Speech runs on Bodhan **Indic-Transcribe, Indic-Translate and Indic-Speak**; Gemini (through OpenRouter) edits the script and reviews who is speaking; local GPU workers handle speakers, faces, audio separation and lip sync.
 
